@@ -1,6 +1,4 @@
 @echo off
-git add .
-git commit -a -m %message%
-git push
+git pull
 echo Pulled all changes from remote
 timeout /t -1
