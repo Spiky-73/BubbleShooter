@@ -1,5 +1,5 @@
-﻿"""
-Executez ce fichier pour jouer au jeu
+"""
+Executez ce fichier pour jouer au jeu !
 """
 
 import tkinter as tk
