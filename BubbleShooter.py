@@ -31,15 +31,27 @@ class BubbleShooter():
         mouseY = event.y
         x = self.fen_graphique.canevas.canvasx(mouseX)
         y = self.fen_graphique.canevas.canvasy(mouseY)
+        
+        self.x += int(self.dx)
+        self.y += int(self.dy)
 
         if self.x < 0 : # si la bille sort de la fenêtre
             self.x = 0
             self.dx = -self.dx # elle rebondit contre le mur
+        elif self.x + self. > self. : # position de la bille et position du bord
+            self.x = self. - self. # bord - bille
+            self.dx = - self.dx
+        
         if self.y < 0 : # on fait pour toutes les directions
             self.y = 0
-            self.dy = -self.dy
+            self.dy = -self.dy  
+        elif self.y+self. > self. : # bille - bord
+            self.y = self. - self. # bord - bille
+            self.dy = -self.dy    
             
     def ouvrir_fen_jeu(self,event):
+        
+        """ Création de la fenêtre de jeu. """
         if self.fen_jeu!=None:
             self.fen_jeu.destroy()
         self.fen_jeu=tk.Toplevel(self.racine)
