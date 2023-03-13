@@ -8,7 +8,7 @@ class BubbleShooter():
     
     def __init__(self):        
         self.racine = tkinter.Tk()
-        self.racine.title("Fenêtre pour interactions Texte et Graphique")
+        self.racine.title("Fenêtre pour interactions Texte et Graphique...")
         self.racine.config(width=300, height=700)
         self.racine.resizable(height = False, width = False)
 
