@@ -1,14 +1,39 @@
+from balle import RAYON
+import tkinter as tk
 import balle
+from utilitaire import Vector2
 
 class FenetresJeu:
-    def __init__(self, niveau: str) -> None:
-        """Initialise la fenêtre de jeu avec le niveau choisi."""
-        self.w_balle = self.balle.width()
-        self.h_balle = self.balle.height()
+    
+    def __init__(self, racine, niveau: str) -> None:
+        
+        """initialise la fenêtre de jeu avec le niveau choisi."""
+        self.niveau=niveau
+        
+        self.racine = tk.Toplevel(racine)        
+        self.racine.title("Jeu en cours")
+        self.racine.config(width=300, height=300)
+        self.racine.resizable(height = False, width = False)
+        
+        self.canevas_height=700
+        self.canevas_width=500
+        self.canevas = tk.Canvas(self.racine, bg="light blue", height=self.canevas_height, width=self.canevas_width)
+        self.canevas.pack()
+        
+        self._init_niveau()
+        
+        
+        self.fichier='init_jeu.csv'
+        self.init_jeu_dico={}
+
+        self.souris = Vector2(0,0)
+        self.racine.bind("<Motion>", self.movement_souris)
+    
 
     def _init_niveau(self) -> None:
-        """Lecture et chargement du niveau."""
-
+        """lecture et chargement du niveau."""
+        #if self.niveau=="facile":
+            
     def _creer_widgets(self) -> None:
         """Ajoute l'interface du jeu."""
 
@@ -16,50 +41,65 @@ class FenetresJeu:
     def update(self) -> None:
         """
         Appelée plusieurs fois par seconde.
-        Appelle toutes les fonctions liées au mouvement de la balle (timer) et du jeu.
+        Appellere toutes les fonctions liées au mouvement de la balle (timer) et du jeu.
         """
     
-    def _update_souris(self) -> None:
+    def movement_souris(self, event: tk.Event) -> None:
         """Récupère la position de la souris."""
+        self.souris.x = event.x
+        self.souris.y = event.y
 
     def _update_trajectoire(self) -> None:
         """Simule la trajectoire de la balle et l'affiche pour guider le joueur."""
 
     def _update_balle(self) -> None:
-        """Contôle le déplacement de la balle."""
+        """Controlle le déplacement de la balle."""
 
 
     def deplacer_balle(self, balle: balle.Balle, dt: float) -> None:
-        """Déplace une balle sur dt secondes et prend en compte les collisions."""
-    
-        self.x += int(self.dx)
-        self.y += int(self.dy)
+        """Deplace une balle sur dt secondes et prends en compte les collisions."""
+        balle.position.x += balle.vitesse.x * dt
+        balle.position.y += balle.vitesse.y * dt
 
-        if self.x < 0 : # si la bille sort de la fenetre
-            self.x = 0
-            self.dx = -self.dx # elle rebondit contre le mur
-        elif self.x + self.w_balle > 500 : # position de la bille et position du bord
-            self.x = 500 - self.w_balle # bord - bille car la fenetre fait 500x700
-            self.dx = - self.dx
+        if balle.position.x < 0 : # si la bille sort de la fenetre
+            balle.position.x = 0
+            
+            balle.vitesse.x = -balle.vitesse.x # elle rebondit contre le mur
+        elif balle.position.x + RAYON > 500 : # position de la bille et position du bord
+            balle.position.x = 500 - RAYON # bord - bille car la fenetre fait 500x700
+            balle.vitesse.x = - balle.vitesse.x
         
-        if self.y < 0 : # on fait pour toutes les directions
-            self.y = 0
-            self.dy = -self.dy  
-        elif self.y + self.h_balle > 700 : # bille - bord
-            self.y = 700 - self.h_balle # bord - bille
-            self.dy = -self.dy    
-
+        if balle.position.y < 0 : # on fait pour toutes les directions
+            balle.position.y = 0
+            balle.vitesse.y = - balle.vitesse.y  
+        elif balle.position.y + RAYON > 700 : # bille - bord
+            balle.position.y = 700 - RAYON # bord - bille
+            balle.vitesse.y = - balle.vitesse.y    
     def collision_bille(self, balle: balle.Balle) -> int:
         """Renvoie l'id de la bille touchée ou None si la balle ne touche pas de bille."""
-        
-        return
 
+        if balle.position.x + RAYON or balle.position.y + RAYON == self.x_bille + RAYON or self.y_bille + RAYON : # teste s'il y a collision entre la balle et une bille déjà placée
+           x_touche = self.x_bille
+           y_touche = self.y_bille
+           id = (x_touche,y_touche)
+   
+        else : # si on ne touche rien
+           id = None
+           
+        return id # renvoie les coordonnées de la bille touchée
+           
     # ? changer la fonction pour qu'elle retourne tous les voisins de la même couleure et faire le test du nombre dans une autre fonction ou lors de la collision de la balle
     def recherche_voisins(self, balle: balle.Balle, nombre: int = 3) -> bool:
         """
         Renvoie `True` s'il y a plus de `nombre` billes adjacentes de la même couleur a `balle`.
         Stocke les coordonnées de la balle qui reste alors sur le caneva si ce n'est pas la cas.
         """
+        for bille in self.billes:
+            coords = self.canevas.coords(bille)
+            position = Vector2(coords[0]+coords[RAYON], coords[1]+coords[RAYON])
+            if(self.canevas.coords(bille)):
+                
+            
 
     def eclate_billes_adjacentes(self,  balle: balle.Balle) : 
         """Eclates toutes les billes adjacentes de la même couleur que la balle."""

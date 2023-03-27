@@ -1,5 +1,6 @@
-from typing import NamedTuple
+import dataclasses
 
-class Vector2(NamedTuple):
+@dataclasses.dataclass
+class Vector2:
     x: float
     y: float
