@@ -1,4 +1,5 @@
-﻿"""
+
+"""
 Executez ce fichier pour jouer au jeu
 """
 
@@ -27,27 +28,7 @@ class BubbleShooter():
         """ Trajectoire = droite entre la position de la souris au moment où on clique et la position du 
         canon à billes en bas de l'écran. """
         
-        mouseX = event.x # on récupère la position de la souris
-        mouseY = event.y
-        x = self.fen_graphique.canevas.canvasx(mouseX)
-        y = self.fen_graphique.canevas.canvasy(mouseY)
-        
-        self.x += int(self.dx)
-        self.y += int(self.dy)
-
-        if self.x < 0 : # si la bille sort de la fenêtre
-            self.x = 0
-            self.dx = -self.dx # elle rebondit contre le mur
-        elif self.x + self. > self. : # position de la bille et position du bord
-            self.x = self. - self. # bord - bille
-            self.dx = - self.dx
-        
-        if self.y < 0 : # on fait pour toutes les directions
-            self.y = 0
-            self.dy = -self.dy  
-        elif self.y+self. > self. : # bille - bord
-            self.y = self. - self. # bord - bille
-            self.dy = -self.dy    
+       
             
     def ouvrir_fen_jeu(self,event):
         
@@ -66,3 +47,36 @@ class BubbleShooter():
 if __name__ == "__main__":
     app = BubbleShooter()
     app.racine.mainloop()
+
+"""
+Executez ce fichier pour jouer au jeu
+"""
+import tkinter
+
+class FenetresMenu:
+    def __init__(self) -> None:
+        self.root = tkinter.Tk()
+        self.root.title("Bubble Shoter")
+        self.root.config(width=300, height=300)
+        self.root.resizable(height = False, width = False)
+        self.fichier='init_jeu.csv'
+        self.init_jeu_dico={}
+        self._creer_widgets()
+
+    def _creer_widgets(self) -> None:
+        """Ajoute l'interface du menu."""
+        self.fen_jeu=tkinter.Button(self.root, text='Lancement du jeu')
+        self.fen_jeu.place(x=50, y=0)
+        self.fen_jeu.bind('<Button-1>', self.lancer_jeu)
+        pass
+
+    def lancer_jeu(self, event: tkinter.Event) -> None:
+        """Cree la fenêtre de jeu et ferme la fenêtre principale."""
+
+    def affiche_regles_jeu(self, event: tkinter.Event) -> None:
+        """Ouvre une message box contenant les règles du jeu."""
+
+if __name__ == "__main__":
+    app = FenetresMenu()
+    app.mainloop()
+
