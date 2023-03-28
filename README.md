@@ -3,7 +3,7 @@
 ## Objectif du projet 
 Nous allons programmer un jeu du type **Bubble shooter**. L’objectif du jeu est d’éclater des bulles de couleur (canvas). On doit viser et tirer sur les bulles de la même couleur que la bille dans le lanceur : les bulles sont éliminées si elles forment au minimum une chaîne de 3 bulles de même couleur connectées. Les billes tombent si elles ne sont pas soutenues par des billes au-dessus. Les billes rebondissent sur les parois (murs verticaux). Le jeu est fini lorsque toutes les bulles sont éclatées (gagné) ou si le joueur n’a plus la place de tirer une balle (perdu, la dernière ligne de billes se trouve juste au-dessus du canon). Il existe aussi d’autres modes de jeu.
 
-![Prototype](proto.png)
+![Prototype](images/proto.png)
 
 ## Commandes du jeu
  - `Utiliser la souris` pour viser avec le lanceur
@@ -44,3 +44,103 @@ On peut aussi ajouter un bouton pour rappeler les règles du jeu (comment jouer)
  - Comptage des points, score
  - Ajouter des statistiques de jeu (bulles éclatées par tir, plus grande chaîne, …)
  - Autre mode de jeu → rapidité : les lignes descendent de plus en plus vite, il faut alors se débarrasser des billes avant qu’elles ne touchent le bas de la fenêtre. Quand la dernière ligne est éliminée, on progresse d’une ligne vers le haut : on peut remonter ainsi à l’infini.
+
+
+# Fonctionnement de git
+## Setup
+Executez la commande suivante dans le dossier parent pour récuperer le repo sur votre ordi :
+```bash
+git clone https://github.com/Spiky-73/BubbleShooter
+```
+
+## Workflow
+Un repo git est comme un dossier de fichier, mais il fonctionne avec leurs modifications.
+Une fois que des fichiers sont modifiées, il faut notifier leurs modifications à git (`add` ou `stage`), puis les enregister (`commit`) et enfin les envoyer sur le cloud (`push`).
+
+On peut aussi récuperer les modification des autres (`pull`) ou se synchroniser avec le cloud (`pull` puis `push`).
+
+Si besoin, on peut aussi faire un backup de nos modifications (`stash`) avant de revenir sur la dernière version du cloud.
+
+
+## Commandes (dans vs code)
+Ces actions permettent d'agir avec le repo distant.
+ - Pull : recupère les nouvelles commits depuis le repo.
+
+ - Stage (All) changes : signale à git qu'un fichier a été modifié.
+
+ - Commit : Enregistre localement les modifications. **Utilisez de préférence `Commit and sync` pour éviter les problèmes lors du push** (voir [Réaliser une commit](#réaliser-une-commit)).
+
+ - Push : Envoie les nouvelles commits vers le repo. **Nécessite un pull au préalable.**
+
+![Git commands](images/pushPull.png)
+
+## Réaliser une commit
+
+Pour créer et push une commit, il primordial d'avoir réaliser un `pull` ou `sync` au préalable. (voir [En cas de confits](#en-cas-de-confits) si il y a une erreur).
+
+Il faut d'abord ajouter nos changements en cliquant sur les `+` à coté des fichiers ou le `+` de `Changes` pour tout ajouter.
+
+![Git commit](images/stage.png)
+
+Une fois cela fait, on peut créer la commit en lui donnant un message puis cliquer sur `Commit and sync` pour l'envoyer (voir [En cas de confits](#en-cas-de-confits) si il y a une erreur).
+
+![Git commit](images/commit.png)
+
+Si on a oublié le message de la commit, un éditeur s'ouvre. 
+ 1. On ajoute le message en bas du fichier.
+ 3. On valide pour envoyer la commit. On peut aussi fermer le fichier pour l'annuler.
+
+![Git commit](images/commitNoMessage.png)
+
+## En cas de confits
+Lors d'un push ou d'un pull, il est possible que différentes versions de certain fichiers ne soit pas compatibles par endroits (par ex. si 2 personnes modifie le même code temps on que l'on tente de `push` sans avoir `pull` au préalable).
+
+![Prototype](images/mergeError.png)
+
+Dans ce cas, 2 solutions sont possible:
+
+### Réaliser un stash **(à utiliser en priorité)**
+On réalise une sauvegarde de nos modifications pour ensuite retourner sur une version pour laquelle on peut récupérer les nouvelles commits.
+On restore enfin la sauvegarde en resolvant les conflits dans les fichiers.
+
+ 1. Réaliser un `Stash` total du dossier et lui donner un nom.
+
+    ![Stash](images/stash.png)
+    ![Stash Message](images/stash2.png)
+
+ 2. Effectuer un `Pull` ou `Sync`
+
+    ![Sync](images/sync.png)
+
+ 3. Appliquer le dernier stash.
+    
+    ![Sync](images/stashApply.png)
+
+ 4. Si il y a des conflits, rechercher tous les fichiers avec un point d'exclamation et les ouvrir. Ces fichiers on des conflits à résoudre.
+
+    ![Sync](images/stashConflicts.png)
+
+    ![Sync](images/conflicts.png)
+
+    ![Sync](images/conflict.png)
+
+    Pour les résoudre, cliquez sur `Resolve in Merge Editor`.
+
+    ![Sync](images/openMergeEditor.png)
+
+    Un nouvel éditeur s'ouvre, dans lequel on va résoudre les conflits.
+
+     1. Choisir quel version du code conserver grace au bouttons `Accept ###` ou `Ignore`. On peut éditer le code final dans la zone orange du bas (section `Results`).
+     2. Passer au conflit suivant et les résoudre comme au dessous jusqu'à ce qu'il ne reste plus de conflits.
+     3. Confirmer les changements.
+    
+    ![Sync](images/mergeEditor.png)
+
+    ![Sync](images/noConflicts.png)
+    
+### Réaliser un merge
+Cette procedure est nécessaire si une commit a été crée mais pas envoyée au moment du `Pull`.
+
+Lors du `Pull`, les conflits sont résolus comme dans [Réaliser un stash](#réaliser-un-stash-(à-utiliser-en-priorité)).
+
+On crée ensuite une commit vide représentant le merge (vs code la nomme automatiquement) puis `push` nos commits.
