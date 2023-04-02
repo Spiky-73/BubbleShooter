@@ -3,6 +3,9 @@ import tkinter as tk
 import balle
 from utilitaire import Vector2
 
+from datetime import datetime
+import math 
+
 class FenetresJeu:
     
     def __init__(self, racine, niveau: str) -> None:
@@ -20,14 +23,14 @@ class FenetresJeu:
         self.canevas = tk.Canvas(self.racine, bg="light blue", height=self.canevas_height, width=self.canevas_width)
         self.canevas.pack()
         
-        self._init_niveau()
-        
-        
         self.fichier='init_jeu.csv'
         self.init_jeu_dico={}
-
+        self._init_niveau()
+        
         self.souris = Vector2(0,0)
         self.racine.bind("<Motion>", self.movement_souris)
+
+        self._creer_widgets()
     
 
     def _init_niveau(self) -> None:
@@ -35,7 +38,34 @@ class FenetresJeu:
         #if self.niveau=="facile":
             
     def _creer_widgets(self) -> None:
-        """Ajoute l'interface du jeu."""
+        """Ajoute l'interface du jeu et ses données/statistiques : score, temps écoulé, nombre de billes éclatées..."""
+
+        self.timer = tk.Label(self.racine, text = "\nTemps écoulé :", font = 'Helvetica 11 bold')
+        self.timer.pack(side=tk.RIGHT, fill='x')
+        
+        compteur = math.inf
+        running = False
+        
+
+    def counter_label(self, count) : # je vois pas trop comment faire le chronomètre
+        def compter(self) :
+            if running == True :
+                global compteur
+    
+    def start_chrono(self, label) :
+        global running
+        running = True
+        self.counter_label(label)
+    
+    def stop_chrono(self) : 
+        global running
+        running = False
+
+
+    def movement_souris(self, event: tk.Event) -> None:
+        """Récupère la position de la souris."""
+        self.souris.x = event.x
+        self.souris.y = event.y
 
 
     def update(self) -> None:
@@ -43,11 +73,6 @@ class FenetresJeu:
         Appelée plusieurs fois par seconde.
         Appellere toutes les fonctions liées au mouvement de la balle (timer) et du jeu.
         """
-    
-    def movement_souris(self, event: tk.Event) -> None:
-        """Récupère la position de la souris."""
-        self.souris.x = event.x
-        self.souris.y = event.y
 
     def _update_trajectoire(self) -> None:
         """Simule la trajectoire de la balle et l'affiche pour guider le joueur."""
@@ -98,7 +123,7 @@ class FenetresJeu:
             coords = self.canevas.coords(bille)
             position = Vector2(coords[0]+coords[RAYON], coords[1]+coords[RAYON])
             if(self.canevas.coords(bille)):
-                
+                pass
             
 
     def eclate_billes_adjacentes(self,  balle: balle.Balle) : 
