@@ -68,7 +68,6 @@ class FenetresMenu:
         messagebox.showinfo("Règles du jeu ", "...")  
         
         
-        
 if __name__ == "__main__":
     app = FenetresMenu()
     app.root.mainloop()

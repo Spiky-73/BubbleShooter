@@ -6,13 +6,13 @@ from utilitaire import Vector2
 import random
 import csv
 from datetime import datetime
-import math 
+import math # pour pouvoir utiliser math.inf
 
 class FenetresJeu:
     
     def __init__(self, racine, niveau: str) -> None:
-        
-        """initialise la fenêtre de jeu avec le niveau choisi."""
+        """Initialise la fenetre de jeu avec le niveau choisi."""
+
         self.niveau=niveau
         
         if niveau=="facile":
@@ -41,12 +41,11 @@ class FenetresJeu:
         self.racine.bind("<Motion>", self.movement_souris)
 
         self._creer_widgets()
-        
+    
         self.creer_balle_canon()
     
-
     def _init_niveau(self) -> None:
-        """lecture et chargement du niveau."""
+        """Lecture et chargement du niveau."""
         with open(self.fichier, encoding='utf-8') as csvfile:
             reader = csv.reader(csvfile,  delimiter=",")
             dicotemp = {}
@@ -62,17 +61,29 @@ class FenetresJeu:
             
             
     def _creer_widgets(self) -> None:
-        """Ajoute l'interface du jeu et ses données/statistiques : score, temps écoulé, nombre de billes éclatées..."""
+        """Ajoute l'interface du jeu et ses donnees/statistiques : score, temps écoule, nombre de billes eclatees..."""
 
         self.timer = tk.Label(self.racine, text = "\nTemps écoulé :", font = 'Helvetica 11 bold')
         self.timer.pack(side=tk.RIGHT, fill='x')
         
-        compteur = math.inf
+        compteur = math.inf # pour le chronometre 
         running = False
+
+        self.nbr_billes_eclatees = tk.Label(self.racine, text = "\nNombre de billes éclatées", font = 'Helvetica 11 bold')
+        self.nbr_billes_eclatees.pack(side=tk.RIGHT, fill='x')
+
+        self.score = tk.Label(self.racine, text = "\nScore", font = 'Helvetica 11 bold')
+        self.score.pack(side=tk.RIGHT, fill='x')
+
+    #def calcul_score(self,event):
+        #il faudrait faire un timer pour actualiser le score apres chaque lancer ? ou meme toutes les secondes ?
+        #"""Calcule le score du joueur tel que score = nombre de billes eclatees / temps ecoule depuis le debut de la partie."""
+        #nbr_billes_eclatees = _eclate_bille(self) + eclate_billes_adjacentes(self)
+        #nbr_billes_eclatees / temps
     
     def creer_balle_canon(self):
         """crée la balle au niveau du canon à balles (en bas de la fenêtre) et choisi sa couleur aléatoirement """
-        couleurs= ["blue", "red"]
+        couleurs = ["red", "green", "blue", "yellow", "magenta", "cyan", "white", "purple"]
         couleur = couleurs[random.randint(0,1)]
         canon =balle.Balle(utilitaire.Vector2(250,675),utilitaire.Vector2(1,1), couleur)
         self.balle_canon = self.canevas.create_oval(canon.position.x,canon.position.y,canon.position.x+RAYON,canon.position.y+RAYON, fill= canon.couleur)
@@ -92,12 +103,10 @@ class FenetresJeu:
         global running
         running = False
 
-
     def movement_souris(self, event: tk.Event) -> None:
         """Récupère la position de la souris."""
         self.souris.x = event.x
         self.souris.y = event.y
-
 
     def update(self) -> None:
         """
@@ -152,13 +161,13 @@ class FenetresJeu:
         else : # si on ne touche rien
            id = None
            
-        return id # renvoie les coordonnées de la bille touchée
+        return int(id) # renvoie les coordonnées de la bille touchée
            
-    # ? changer la fonction pour qu'elle retourne tous les voisins de la même couleure et faire le test du nombre dans une autre fonction ou lors de la collision de la balle
+    # ? changer la fonction pour qu'elle retourne tous les voisins de la même couleur et faire le test du nombre dans une autre fonction ou lors de la collision de la balle
     def recherche_voisins(self, balle: balle.Balle, nombre: int = 3) -> bool:
         """
         Renvoie `True` s'il y a plus de `nombre` billes adjacentes de la même couleur a `balle`.
-        Stocke les coordonnées de la balle qui reste alors sur le caneva si ce n'est pas la cas.
+        Stocke les coordonnées de la balle qui reste alors sur le caneva si ce n'est pas le cas.
         """
         for bille in self.billes:
             coords = self.canevas.coords(bille)
@@ -175,3 +184,4 @@ class FenetresJeu:
 
     def test_fin_de_partie (self) -> bool: 
         """Arrête le jeu (sortir de la fonction update) si il n'y a plus de billes et affiche le score dans une messagebox."""
+        if compter_billes == 0 :
