@@ -2,7 +2,7 @@ from balle import RAYON
 import tkinter as tk
 import balle
 from utilitaire import Vector2
-
+import csv
 from datetime import datetime
 import math 
 
@@ -13,6 +13,15 @@ class FenetresJeu:
         """initialise la fenêtre de jeu avec le niveau choisi."""
         self.niveau=niveau
         
+        if niveau=="facile":
+            self.fichier='init_jeu_f.csv'
+            
+        if niveau=="moyen":
+            self.fichier='init_jeu_m.csv'
+        
+        if niveau=="difficile":
+            self.fichier='init_jeu_d.csv'
+
         self.racine = tk.Toplevel(racine)        
         self.racine.title("Jeu en cours")
         self.racine.config(width=300, height=300)
@@ -23,7 +32,6 @@ class FenetresJeu:
         self.canevas = tk.Canvas(self.racine, bg="light blue", height=self.canevas_height, width=self.canevas_width)
         self.canevas.pack()
         
-        self.fichier='init_jeu.csv'
         self.init_jeu_dico={}
         self._init_niveau()
         
@@ -35,7 +43,19 @@ class FenetresJeu:
 
     def _init_niveau(self) -> None:
         """lecture et chargement du niveau."""
-        #if self.niveau=="facile":
+        with open(self.fichier, encoding='utf-8') as csvfile:
+            reader = csv.reader(csvfile,  delimiter=",")
+            dicotemp = {}
+            for ligne in reader:
+                print(ligne)
+                ident, x, y, color=ligne[0], ligne[1], ligne[2], ligne[3]
+                if ident not in dicotemp: # si la clef n'existe pas encore
+                    dicotemp[ident] = [float(x),float(y), str(color)] # on cree la liste des infos associées
+        self.init_jeu_dico = dicotemp
+
+        for x, y, color in self.init_jeu_dico.values():
+            self.canevas.create_oval(x,y, x+RAYON, y+RAYON, fill=color)
+            
             
     def _creer_widgets(self) -> None:
         """Ajoute l'interface du jeu et ses données/statistiques : score, temps écoulé, nombre de billes éclatées..."""
