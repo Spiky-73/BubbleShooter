@@ -78,7 +78,7 @@ Ces actions permettent d'agir avec le repo distant.
 
 Pour créer et push une commit, il primordial d'avoir réaliser un `pull` ou `sync` au préalable. (voir [En cas de confits](#en-cas-de-confits) si il y a une erreur).
 
-Il faut d'abord ajouter nos changements en cliquant sur les `+` à coté des fichiers ou le `+` de `Changes` pour tout ajouter.
+Il faut d'abord ajouter nos changements en cliquant sur les `+` à coté des fichiers ou le `+` de `Changes` pour tout ajouter (ou exceuter `git add -A` dans le terminal)
 
 ![Git commit](images/stage.png)
 

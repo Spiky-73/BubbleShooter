@@ -1,7 +1,9 @@
 from balle import RAYON
 import tkinter as tk
 import balle
+import utilitaire
 from utilitaire import Vector2
+import random
 
 from datetime import datetime
 import math 
@@ -31,6 +33,8 @@ class FenetresJeu:
         self.racine.bind("<Motion>", self.movement_souris)
 
         self._creer_widgets()
+        
+        self.creer_balle_canon()
     
 
     def _init_niveau(self) -> None:
@@ -48,9 +52,11 @@ class FenetresJeu:
     
     def creer_balle_canon(self):
         """crée la balle au niveau du canon à balles (en bas de la fenêtre) et choisi sa couleur aléatoirement """
-        #couleurs= ("White", "Blue", "Red") # ou est-ce qu'on voit quelles sont les couleurs utilisées
-        #couleur = random(couleurs)
-        #canon =balle.Balle(utilitaire.Vector2(250,650),utilitaire.Vector2(1,1),couleur)
+        couleurs= ["blue", "red"]
+        couleur = couleurs[random.randint(0,1)]
+        canon =balle.Balle(utilitaire.Vector2(250,675),utilitaire.Vector2(1,1), couleur)
+        self.balle_canon = self.canevas.create_oval(canon.position.x,canon.position.y,canon.position.x+RAYON,canon.position.y+RAYON, fill= canon.couleur)
+    
 
     def counter_label(self, count) : # je vois pas trop comment faire le chronomètre
         def compter(self) :
@@ -81,6 +87,15 @@ class FenetresJeu:
 
     def _update_trajectoire(self) -> None:
         """Simule la trajectoire de la balle et l'affiche pour guider le joueur."""
+        point=balle.Balle(utilitaire.Vector2(250,675),utilitaire.Vector2(1,1),'white')
+        dt_trajectoire=10
+        self.deplacer_balle(point, dt_trajectoire)
+        self.pointille = self.canevas.create_oval(point.position.x,point.position.y,point.position.x+5,point.position.y+5, fill=point.couleur)
+
+
+    def envoi_balle(self, event) : 
+        """Envoie la balle dans la direction de la souris"""
+       
 
     def _update_balle(self) -> None:
         """Controlle le déplacement de la balle."""
