@@ -45,7 +45,12 @@ class FenetresJeu:
         
         compteur = math.inf
         running = False
-        
+    
+    def creer_balle_canon(self):
+        """crée la balle au niveau du canon à balles (en bas de la fenêtre) et choisi sa couleur aléatoirement """
+        #couleurs= ("White", "Blue", "Red") # ou est-ce qu'on voit quelles sont les couleurs utilisées
+        #couleur = random(couleurs)
+        #canon =balle.Balle(utilitaire.Vector2(250,650),utilitaire.Vector2(1,1),couleur)
 
     def counter_label(self, count) : # je vois pas trop comment faire le chronomètre
         def compter(self) :
@@ -99,7 +104,8 @@ class FenetresJeu:
             balle.vitesse.y = - balle.vitesse.y  
         elif balle.position.y + RAYON > 700 : # bille - bord
             balle.position.y = 700 - RAYON # bord - bille
-            balle.vitesse.y = - balle.vitesse.y    
+            balle.vitesse.y = - balle.vitesse.y  
+
     def collision_bille(self, balle: balle.Balle) -> int:
         """Renvoie l'id de la bille touchée ou None si la balle ne touche pas de bille."""
 
