@@ -1,67 +1,44 @@
-from balle import RAYON
 import tkinter as tk
-import balle
-import utilitaire
-from utilitaire import Vector2
+import threading
 import random
 import csv
-from datetime import datetime
-import math # pour pouvoir utiliser math.inf
+import math
+
+from balle import Balle, RAYON
+from utilitaire import Vector2, Vector2Int
+
 
 class FenetresJeu:
     
-    def __init__(self, racine, niveau: str) -> None:
+    def __init__(self, niveau: str):
         """Initialise la fenetre de jeu avec le niveau choisi."""
 
-        self.niveau=niveau
-        
-        if niveau=="facile":
-            self.fichier='init_jeu_f.csv'
-            
-        if niveau=="moyen":
-            self.fichier='init_jeu_m.csv'
-        
-        if niveau=="difficile":
-            self.fichier='init_jeu_d.csv'
+        self.niveau = niveau
 
-        self.racine = tk.Toplevel(racine)        
-        self.racine.title("Jeu en cours")
-        self.racine.config(width=300, height=300)
+        self.racine = tk.Tk()        
+        self.racine.title(f"Niveau {niveau}")
         self.racine.resizable(height = False, width = False)
-        
-        self.canevas_height=700
-        self.canevas_width=500
-        self.canevas = tk.Canvas(self.racine, bg="light blue", height=self.canevas_height, width=self.canevas_width)
-        self.canevas.pack()
-        
-        self.init_jeu_dico={}
-        self._init_niveau()
-        
-        self.souris = Vector2(0,0)
-        self.racine.bind("<Motion>", self.movement_souris)
+
+        self.img_eclats = tk.PhotoImage(file="images/eclats.png").subsample(6)
+        self.img_nuages = tk.PhotoImage(file="images/fond.png").zoom(2)
+
+        self.position_souris = Vector2(0,0)
+        self.racine.bind("<Motion>", self._mouvement_souris)
 
         self._creer_widgets()
+
+        self._init_niveau()
     
         self.creer_balle_canon()
-    
-    def _init_niveau(self) -> None:
-        """Lecture et chargement du niveau."""
-        with open(self.fichier, encoding='utf-8') as csvfile:
-            reader = csv.reader(csvfile,  delimiter=",")
-            dicotemp = {}
-            for ligne in reader:
-                print(ligne)
-                ident, x, y, color=ligne[0], ligne[1], ligne[2], ligne[3]
-                if ident not in dicotemp: # si la clef n'existe pas encore
-                    dicotemp[ident] = [float(x),float(y), str(color)] # on cree la liste des infos associées
-        self.init_jeu_dico = dicotemp
-
-        for x, y, color in self.init_jeu_dico.values():
-            self.canevas.create_oval(x,y, x+RAYON, y+RAYON, fill=color)
-            
-            
-    def _creer_widgets(self) -> None:
+      
+    def _creer_widgets(self):
         """Ajoute l'interface du jeu et ses donnees/statistiques : score, temps écoule, nombre de billes eclatees..."""
+
+        self.canevas = tk.Canvas(self.racine, bg="light blue", height=700, width=500)
+        self.canevas.pack()
+
+        self.canevas.create_image(0, -60, image = self.img_nuages, anchor=tk.NW)
+
 
         self.timer = tk.Label(self.racine, text = "\nTemps écoulé :", font = 'Helvetica 11 bold')
         self.timer.pack(side=tk.RIGHT, fill='x')
@@ -75,18 +52,44 @@ class FenetresJeu:
         self.score = tk.Label(self.racine, text = "\nScore", font = 'Helvetica 11 bold')
         self.score.pack(side=tk.RIGHT, fill='x')
 
+    def _init_niveau(self):
+        """Lecture et chargement du niveau."""
+
+        self.fichier=f"niveaux/{self.niveau}.csv"
+
+        self.billes: list[list[int]] = []
+        self.voisins = [
+            Vector2Int(-1,0), Vector2Int(1,0),
+            Vector2Int(0,-1), Vector2Int(0,1)
+        ]
+        self.init_jeu_dico={}
+        with open(self.fichier, encoding='utf-8') as csvfile:
+            reader = csv.reader(csvfile,  delimiter=",")
+            dicotemp = {}
+            for ligne in reader:
+                print(ligne)
+                ident, x, y, color=ligne[0], ligne[1], ligne[2], ligne[3]
+                if ident not in dicotemp: # si la clef n'existe pas encore
+                    dicotemp[ident] = [float(x),float(y), str(color)] # on cree la liste des infos associées
+        self.init_jeu_dico = dicotemp
+
+        for x, y, color in self.init_jeu_dico.values():
+            self.canevas.create_oval(x,y, x+2*RAYON, y+2*RAYON, fill=color)
+              
+
     #def calcul_score(self,event):
         #il faudrait faire un timer pour actualiser le score apres chaque lancer ? ou meme toutes les secondes ?
         #"""Calcule le score du joueur tel que score = nombre de billes eclatees / temps ecoule depuis le debut de la partie."""
         #nbr_billes_eclatees = _eclate_bille(self) + eclate_billes_adjacentes(self)
         #nbr_billes_eclatees / temps
     
+
     def creer_balle_canon(self):
         """crée la balle au niveau du canon à balles (en bas de la fenêtre) et choisi sa couleur aléatoirement """
         couleurs = ["red", "green", "blue", "yellow", "magenta", "cyan", "white", "purple"]
         couleur = couleurs[random.randint(0,1)]
-        canon =balle.Balle(utilitaire.Vector2(250,675),utilitaire.Vector2(1,1), couleur)
-        self.balle_canon = self.canevas.create_oval(canon.position.x,canon.position.y,canon.position.x+RAYON,canon.position.y+RAYON, fill= canon.couleur)
+        canon = Balle(Vector2(250,675), Vector2(1,1), couleur)
+        self.balle_canon = self.canevas.create_oval(canon.position.x,canon.position.y,canon.position.x+2*RAYON,canon.position.y+2*RAYON, fill= canon.couleur)
     
 
     def counter_label(self, count) : # je vois pas trop comment faire le chronomètre
@@ -103,20 +106,23 @@ class FenetresJeu:
         global running
         running = False
 
-    def movement_souris(self, event: tk.Event) -> None:
-        """Récupère la position de la souris."""
-        self.souris.x = event.x
-        self.souris.y = event.y
 
-    def update(self) -> None:
+    def _mouvement_souris(self, event: tk.Event):
+        """Actualise la position de la souris."""
+        self.position_souris.x = event.x
+        self.position_souris.y = event.y
+
+    def update(self):
         """
         Appelée plusieurs fois par seconde.
         Appellere toutes les fonctions liées au mouvement de la balle (timer) et du jeu.
         """
+        
 
-    def _update_trajectoire(self) -> None:
+
+    def _update_trajectoire(self):
         """Simule la trajectoire de la balle et l'affiche pour guider le joueur."""
-        point=balle.Balle(utilitaire.Vector2(250,675),utilitaire.Vector2(1,1),'white')
+        point=Balle(Vector2(250,675),Vector2(1,1),'white')
         dt_trajectoire=10
         self.deplacer_balle(point, dt_trajectoire)
         self.pointille = self.canevas.create_oval(point.position.x,point.position.y,point.position.x+5,point.position.y+5, fill=point.couleur)
@@ -126,11 +132,12 @@ class FenetresJeu:
         """Envoie la balle dans la direction de la souris"""
        
 
-    def _update_balle(self) -> None:
+    def _update_balle(self):
         """Controlle le déplacement de la balle."""
+        
 
 
-    def deplacer_balle(self, balle: balle.Balle, dt: float) -> None:
+    def deplacer_balle(self, balle: Balle, dt: float):
         """Deplace une balle sur dt secondes et prends en compte les collisions."""
         balle.position.x += balle.vitesse.x * dt
         balle.position.y += balle.vitesse.y * dt
@@ -150,8 +157,8 @@ class FenetresJeu:
             balle.position.y = 700 - RAYON # bord - bille
             balle.vitesse.y = - balle.vitesse.y  
 
-    def collision_bille(self, balle: balle.Balle) -> int:
-        """Renvoie l'id de la bille touchée ou None si la balle ne touche pas de bille."""
+    def collision_bille(self, balle: Balle) -> Vector2Int | None:
+        """Renvoie les coordonnées de la bille touchée ou None si la balle ne touche pas de bille."""
 
         if balle.position.x + RAYON or balle.position.y + RAYON == self.x_bille + RAYON or self.y_bille + RAYON : # teste s'il y a collision entre la balle et une bille déjà placée
            x_touche = self.x_bille
@@ -161,27 +168,58 @@ class FenetresJeu:
         else : # si on ne touche rien
            id = None
            
-        return int(id) # renvoie les coordonnées de la bille touchée
-           
-    # ? changer la fonction pour qu'elle retourne tous les voisins de la même couleur et faire le test du nombre dans une autre fonction ou lors de la collision de la balle
-    def recherche_voisins(self, balle: balle.Balle, nombre: int = 3) -> bool:
-        """
-        Renvoie `True` s'il y a plus de `nombre` billes adjacentes de la même couleur a `balle`.
-        Stocke les coordonnées de la balle qui reste alors sur le caneva si ce n'est pas le cas.
-        """
-        for bille in self.billes:
-            coords = self.canevas.coords(bille)
-            position = Vector2(coords[0]+coords[RAYON], coords[1]+coords[RAYON])
-            if(self.canevas.coords(bille)):
-                pass
+        return id # renvoie l'id' de la bille touchée
+
+    def place_balle(self, balle: Balle):
+        """Place la balle dans la cellule la plus proche."""
+        bille = self.position_to_coordonees(balle.position)
+        self.place_bille(bille)
+        
+
+    def get_groupe(self, bille: Vector2Int) -> list[Vector2Int]:
+        """ Renvoie les coordonnées des billes formant un groupe de couleur."""
+        
+        groupe = [bille]
+        attente = [bille]
+        color: str = self.canevas.itemcget(self.billes[bille.y][bille.x], "fill")
+        while len(attente) != 0:
+            pos = attente.pop()
+            for delta in self.voisins:
+                n_pos = pos + delta
+                if 0 <= n_pos.y and n_pos.y < len(self.billes) and 0 <= n_pos.x and n_pos.x < len(self.billes[n_pos.y]) and not n_pos in groupe:
+                    id = self.billes[n_pos.y][n_pos.x]
+                    if(id != -1 and self.canevas.itemcget(id, "fill") == color):
+                        attente.append(n_pos)
+                        groupe.append(n_pos)
             
+        return groupe
+        
 
-    def eclate_billes_adjacentes(self,  balle: balle.Balle) : 
-        """Eclates toutes les billes adjacentes de la même couleur que la balle."""
-
-    def _eclate_bille(self, bille: int):
+    def eclate_bille(self, bille: Vector2Int):
         """Eclate une bille."""
+        id = self.billes[bille.y][bille.x]
+        pos = self.coordonees_to_position(bille)
+        self.billes[bille.y][bille.x] = -1
+        self.canevas.delete(id)
+        annim = self.canevas.create_image(pos.x,pos.y, image = self.img_eclats, anchor=tk.CENTER)
+        threading.Timer(1+(random.random()-0.5)*0.5, self._eclate_bille_fin, args=(annim,)).start()
 
-    def test_fin_de_partie (self) -> bool: 
+    def _eclate_bille_fin(self, annim_id: int):
+        self.canevas.delete(annim_id)
+
+
+    def test_fin_de_partie(self) -> bool: 
         """Arrête le jeu (sortir de la fonction update) si il n'y a plus de billes et affiche le score dans une messagebox."""
         if compter_billes == 0 :
+            pass
+
+
+    def position_to_coordonees(self, position: Vector2) -> Vector2Int:
+        """Convertit la position du centre d'une bille du canevas en coordonnées dans la grille de bille."""
+        position = (position - Vector2(RAYON, RAYON)) / (2*RAYON)
+        return Vector2Int(round(position.x), round(position.y))
+
+    def coordonees_to_position(self, coords: Vector2Int) -> Vector2:
+        """Convertit des coordonnées dans la grille de bille en position sur le canevas"""
+        coords = coords*2*RAYON + Vector2Int(RAYON, RAYON)
+        return Vector2(coords.x, coords.y)

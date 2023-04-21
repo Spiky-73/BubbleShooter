@@ -1,9 +1,54 @@
 import dataclasses
+from typing import Self
 
 @dataclasses.dataclass
 class Vector2:
     x: float
     y: float
 
-    def __add__(self, other):
+    @property
+    def norme(self) -> float:
+        return (self.x**2 + self.y**2)**0.5
+
+
+    def __add__(self, other: Self) -> Self:
         return Vector2(self.x + other.x, self.y + other.y)
+
+    def __sub__(self, other: Self) -> Self:
+        return self + other*-1
+
+    def __mul__(self, mul: float) -> Self:
+        return Vector2(self.x * mul, self.y * mul)
+
+    def __truediv__(self, div: float) -> Self:
+        return self * (1/div)
+
+    def distance(self, other: Self) -> float:
+        return (self-other).norme
+
+
+
+@dataclasses.dataclass
+class Vector2Int:
+    x: int
+    y: int
+
+    @property
+    def norme(self) -> float:
+        return (self.x**2 + self.y**2)**0.5
+
+
+    def __add__(self, other: Self) -> Self:
+        return Vector2Int(self.x + other.x, self.y + other.y)
+
+    def __sub__(self, other: Self) -> Self:
+        return self + other*-1
+
+    def __mul__(self, mul: float) -> Self:
+        return Vector2Int(int(self.x * mul), int(self.y * mul))
+
+    def __truediv__(self, div: float) -> Self:
+        return self * (1/div)
+
+    def distance(self, other: Self) -> float:
+        return (self-other).norme
