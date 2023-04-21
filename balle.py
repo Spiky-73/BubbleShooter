@@ -1,7 +1,7 @@
 import dataclasses
 import utilitaire
 
-RAYON = 20
+RAYON = 10
 
 @dataclasses.dataclass
 class Balle:

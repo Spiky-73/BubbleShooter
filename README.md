@@ -3,7 +3,7 @@
 ## Objectif du projet 
 Nous allons programmer un jeu du type **Bubble shooter**. L’objectif du jeu est d’éclater des bulles de couleur (canvas). On doit viser et tirer sur les bulles de la même couleur que la bille dans le lanceur : les bulles sont éliminées si elles forment au minimum une chaîne de 3 bulles de même couleur connectées. Les billes tombent si elles ne sont pas soutenues par des billes au-dessus. Les billes rebondissent sur les parois (murs verticaux). Le jeu est fini lorsque toutes les bulles sont éclatées (gagné) ou si le joueur n’a plus la place de tirer une balle (perdu, la dernière ligne de billes se trouve juste au-dessus du canon). Il existe aussi d’autres modes de jeu.
 
-![Prototype](images/proto.png)
+![Prototype](images/git/proto.png)
 
 ## Commandes du jeu
  - `Utiliser la souris` pour viser avec le lanceur
@@ -72,7 +72,7 @@ Ces actions permettent d'agir avec le repo distant.
 
  - Push : Envoie les nouvelles commits vers le repo. **Nécessite un pull au préalable.**
 
-![Git commands](images/pushPull.png)
+![Git commands](images/git/pushPull.png)
 
 ## Réaliser une commit
 
@@ -80,22 +80,22 @@ Pour créer et push une commit, il primordial d'avoir réaliser un `pull` ou `sy
 
 Il faut d'abord ajouter nos changements en cliquant sur les `+` à coté des fichiers ou le `+` de `Changes` pour tout ajouter (ou exceuter `git add -A` dans le terminal)
 
-![Git commit](images/stage.png)
+![Git commit](images/git/stage.png)
 
 Une fois cela fait, on peut créer la commit en lui donnant un message puis cliquer sur `Commit and sync` pour l'envoyer (voir [En cas de confits](#en-cas-de-confits) si il y a une erreur).
 
-![Git commit](images/commit.png)
+![Git commit](images/git/commit.png)
 
 Si on a oublié le message de la commit, un éditeur s'ouvre. 
  1. On ajoute le message en bas du fichier.
  3. On valide pour envoyer la commit. On peut aussi fermer le fichier pour l'annuler.
 
-![Git commit](images/commitNoMessage.png)
+![Git commit](images/git/commitNoMessage.png)
 
 ## En cas de confits
 Lors d'un push ou d'un pull, il est possible que différentes versions de certain fichiers ne soit pas compatibles par endroits (par ex. si 2 personnes modifie le même code temps on que l'on tente de `push` sans avoir `pull` au préalable).
 
-![Prototype](images/mergeError.png)
+![Prototype](images/git/mergeError.png)
 
 Dans ce cas, 2 solutions sont possible:
 
@@ -105,28 +105,28 @@ On restore enfin la sauvegarde en resolvant les conflits dans les fichiers.
 
  1. Réaliser un `Stash` total du dossier et lui donner un nom.
 
-    ![Stash](images/stash.png)
-    ![Stash Message](images/stash2.png)
+    ![Stash](images/git/stash.png)
+    ![Stash Message](images/git/stash2.png)
 
  2. Effectuer un `Pull` ou `Sync`
 
-    ![Sync](images/sync.png)
+    ![Sync](images/git/sync.png)
 
  3. Appliquer le dernier stash.
     
-    ![Sync](images/stashApply.png)
+    ![Sync](images/git/stashApply.png)
 
  4. Si il y a des conflits, rechercher tous les fichiers avec un point d'exclamation et les ouvrir. Ces fichiers on des conflits à résoudre.
 
-    ![Sync](images/stashConflicts.png)
+    ![Sync](images/git/stashConflicts.png)
 
-    ![Sync](images/conflicts.png)
+    ![Sync](images/git/conflicts.png)
 
-    ![Sync](images/conflict.png)
+    ![Sync](images/git/conflict.png)
 
     Pour les résoudre, cliquez sur `Resolve in Merge Editor`.
 
-    ![Sync](images/openMergeEditor.png)
+    ![Sync](images/git/openMergeEditor.png)
 
     Un nouvel éditeur s'ouvre, dans lequel on va résoudre les conflits.
 
@@ -134,9 +134,9 @@ On restore enfin la sauvegarde en resolvant les conflits dans les fichiers.
      2. Passer au conflit suivant et les résoudre comme au dessous jusqu'à ce qu'il ne reste plus de conflits.
      3. Confirmer les changements.
     
-    ![Sync](images/mergeEditor.png)
+    ![Sync](images/git/mergeEditor.png)
 
-    ![Sync](images/noConflicts.png)
+    ![Sync](images/git/noConflicts.png)
     
 ### Réaliser un merge
 Cette procedure est nécessaire si une commit a été crée mais pas envoyée au moment du `Pull`.
