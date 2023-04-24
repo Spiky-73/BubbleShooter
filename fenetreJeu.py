@@ -35,6 +35,8 @@ class FenetresJeu:
 
         self.delta = 1000//30
         self.update()
+
+        self.couleurs = ["red", "green", "blue", "yellow", "magenta", "cyan", "white", "purple"]
       
     def _creer_widgets(self):
         """Ajoute l'interface du jeu et ses donnees/statistiques : score, temps écoule, nombre de billes eclatees..."""
@@ -71,15 +73,17 @@ class FenetresJeu:
         with open(self.fichier, encoding='utf-8') as csvfile:
             reader = csv.reader(csvfile,  delimiter=",")
             dicotemp = {}
+            i=0
             for ligne in reader:
-                print(ligne)
-                ident, x, y, color=ligne[0], ligne[1], ligne[2], ligne[3]
-                if ident not in dicotemp: # si la clef n'existe pas encore
-                    dicotemp[ident] = [float(x),float(y), str(color)] # on cree la liste des infos associées
-        self.init_jeu_dico = dicotemp
+                j=0
+                for c in ligne: 
+                    if c not in dicotemp: 
+                        x=random.randint(0, len(self.couleurs)-1-len(dicotemp))
+                        dicotemp[c] = self.couleurs(x)
+                    color=self.dico_color[c]
+                    self.place_bille((i,j), color)
+                    j+=1
 
-        for x, y, color in self.init_jeu_dico.values():
-            self.canevas.create_oval(x,y, x+2*RAYON, y+2*RAYON, fill=color)
 
     
     # TODO verification / ajout de listes en pour eviter les "out of bounds"
