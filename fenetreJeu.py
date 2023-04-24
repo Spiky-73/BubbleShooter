@@ -87,6 +87,7 @@ class FenetresJeu:
         self.pointilles: list[int] = []
         self.vitesse_balle =50 # pixels/s
         self.position_canon = Vector2(250,675) # là où on tire la balle, en bas au centre
+        self.i = 0
 
     
     def place_bille(self, bille: Vector2Int, color: str):
@@ -148,11 +149,11 @@ class FenetresJeu:
         m=1
         rayon = 2
         while self.collision_bille(point) == None and not self.deplacer_balle(point, 1/60) and m < 60*40: # tant qu'on a pas rencontré de bille et donc que la balle est en mouvement
-            if(m%60 == 30):
+            if(m%60 == self.i):
                 self.pointilles.append(self.canevas.create_oval(*(point.centre-Vector2(rayon, rayon)), *(point.centre+Vector2(rayon, rayon)), fill=point.couleur))
             m+=1
         self.pointilles.append(self.canevas.create_oval(*(point.centre-Vector2(self.rayon_billes, self.rayon_billes)), *(point.centre+Vector2(self.rayon_billes, self.rayon_billes)), fill=self.balle_canon.couleur))
-
+        self.i= (self.i+7)%60
 
     def envoi_balle(self, event) : 
         """Envoie la balle dans la direction de la souris"""
