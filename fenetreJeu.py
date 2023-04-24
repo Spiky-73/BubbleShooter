@@ -1,5 +1,5 @@
+import time
 import tkinter as tk
-import threading
 import random
 import csv
 import math
@@ -29,7 +29,12 @@ class FenetresJeu:
 
         self._init_niveau()
     
+        self.balle: Balle | None = None
         self.creer_balle_canon()
+
+
+        self.delta = 1000//30
+        self.update()
       
     def _creer_widgets(self):
         """Ajoute l'interface du jeu et ses donnees/statistiques : score, temps écoule, nombre de billes eclatees..."""
@@ -75,6 +80,13 @@ class FenetresJeu:
 
         for x, y, color in self.init_jeu_dico.values():
             self.canevas.create_oval(x,y, x+2*RAYON, y+2*RAYON, fill=color)
+
+    
+    # TODO verification / ajout de listes en pour eviter les "out of bounds"
+    def place_bille(self, bille: Vector2Int, color: str):
+        """Ajoute une bille sur le canvevas"""
+        position = self.coordonees_to_position(bille)
+        self.billes[bille.y][bille.x] = self.canevas.create_oval(position.x,position.y, position.x+2*RAYON, position.y+2*RAYON, fill=color)
               
 
     #def calcul_score(self,event):
@@ -87,8 +99,8 @@ class FenetresJeu:
     def creer_balle_canon(self):
         """crée la balle au niveau du canon à balles (en bas de la fenêtre) et choisi sa couleur aléatoirement """
         couleurs = ["red", "green", "blue", "yellow", "magenta", "cyan", "white", "purple"]
-        couleur = couleurs[random.randint(0,1)]
-        canon = Balle(Vector2(250,675), Vector2(1,1), couleur)
+        couleur = couleurs[random.randint(0,1)] # BUG len(couleurs)
+        canon = Balle(Vector2(250,675), Vector2(1,1), couleur, -1)
         self.balle_canon = self.canevas.create_oval(canon.position.x,canon.position.y,canon.position.x+2*RAYON,canon.position.y+2*RAYON, fill= canon.couleur)
     
 
@@ -117,12 +129,17 @@ class FenetresJeu:
         Appelée plusieurs fois par seconde.
         Appellere toutes les fonctions liées au mouvement de la balle (timer) et du jeu.
         """
-        
+        self._prediction_trajectoire()
+        self._update_balle()
+        self._update_score()
+
+        self.racine.after(self.delta, self.update)
 
 
-    def _update_trajectoire(self):
+    def _prediction_trajectoire(self):
         """Simule la trajectoire de la balle et l'affiche pour guider le joueur."""
-        point=Balle(Vector2(250,675),Vector2(1,1),'white')
+        if(self.balle is not None): return
+        point=Balle(Vector2(250,675),Vector2(1,1),'white', -1)
         dt_trajectoire=10
         self.deplacer_balle(point, dt_trajectoire)
         self.pointille = self.canevas.create_oval(point.position.x,point.position.y,point.position.x+5,point.position.y+5, fill=point.couleur)
@@ -134,6 +151,35 @@ class FenetresJeu:
 
     def _update_balle(self):
         """Controlle le déplacement de la balle."""
+        if(self.balle is None): return
+
+        self.deplacer_balle(self.balle, self.delta)
+        self.canevas.moveto(self.balle.id, self.balle.position.x+RAYON, self.balle.position.y+RAYON)
+
+        bille = self.collision_bille(self.balle)
+        if(bille is None) : return
+
+        color: str = self.canevas.itemcget(self.billes[bille.y][bille.x], "fill")
+        if(color != self.balle.couleur):
+            self.place_balle(self.balle)
+        else:
+            groupe = self.get_groupe(bille)
+            if(len(groupe) < 2):
+                self.place_balle(self.balle)
+            else:
+                annim = self.canevas.create_image(self.balle.position.x,self.balle.position.y, image = self.img_eclats, anchor=tk.CENTER)
+                self.racine.after(1000+random.randint(-250, 250), self._eclate_bille_fin, annim)
+                for b in groupe:
+                    time.sleep(0.1)
+                    self.eclate_bille(b)
+
+                self.canevas.delete(self.balle.id)
+                self.balle = None
+                self.creer_balle_canon()
+
+
+    def _update_score(self):
+        """Actualise le temps total de jeu et le score."""
         
 
 
@@ -173,7 +219,7 @@ class FenetresJeu:
     def place_balle(self, balle: Balle):
         """Place la balle dans la cellule la plus proche."""
         bille = self.position_to_coordonees(balle.position)
-        self.place_bille(bille)
+        self.place_bille(bille, balle.couleur)
         
 
     def get_groupe(self, bille: Vector2Int) -> list[Vector2Int]:
@@ -202,7 +248,7 @@ class FenetresJeu:
         self.billes[bille.y][bille.x] = -1
         self.canevas.delete(id)
         annim = self.canevas.create_image(pos.x,pos.y, image = self.img_eclats, anchor=tk.CENTER)
-        threading.Timer(1+(random.random()-0.5)*0.5, self._eclate_bille_fin, args=(annim,)).start()
+        self.racine.after(1000+random.randint(-250, 250), self._eclate_bille_fin, annim)
 
     def _eclate_bille_fin(self, annim_id: int):
         self.canevas.delete(annim_id)
@@ -210,8 +256,7 @@ class FenetresJeu:
 
     def test_fin_de_partie(self) -> bool: 
         """Arrête le jeu (sortir de la fonction update) si il n'y a plus de billes et affiche le score dans une messagebox."""
-        if compter_billes == 0 :
-            pass
+        pass
 
 
     def position_to_coordonees(self, position: Vector2) -> Vector2Int:
