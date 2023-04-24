@@ -42,10 +42,10 @@ class FenetresJeu:
         """Ajoute l'interface du jeu et ses données/statistiques : score, temps écoulé, nombre de billes éclatées..."""
 
         self.taille_canevas = Vector2Int(500, 700)
-        self.canevas = tk.Canvas(self.racine, bg="light blue", height=self.taille_canevas.y, width=self.taille_canevas.x)
+        self.canevas = tk.Canvas(self.racine, bg="light blue", height=self.taille_canevas.y, width=self.taille_canevas.x, bd=0, highlightthickness=0)
         self.canevas.pack()
 
-        self.canevas.create_image(0, -60, image = self.img_nuages, anchor=tk.NW)
+        self.canevas.create_image(-2, -60, image = self.img_nuages, anchor=tk.NW)
 
         self.timer = tk.Label(self.racine, text = "\nTemps écoulé ", font = 'Helvetica 11 bold')
         self.timer.pack(side=tk.RIGHT, fill='x')
@@ -143,14 +143,14 @@ class FenetresJeu:
         delta = self.position_souris - self.position_canon
         angle = math.atan2(delta.y, delta.x)
         self.balle_canon.vitesse = Vector2(math.cos(angle), math.sin(angle)) * self.vitesse_balle
-        point = Balle(copy.copy(self.position_canon), self.balle_canon.rayon, copy.copy(self.balle_canon.vitesse), 'black', -1) # pointillés noirs qui simulent la trajectoire
+        point = Balle(copy.copy(self.position_canon), self.balle_canon.rayon, copy.copy(self.balle_canon.vitesse), self.balle_canon.couleur, -1) # pointillés noirs qui simulent la trajectoire
 
         
         m=1
         rayon = 2
         while self.collision_bille(point) == None and not self.deplacer_balle(point, 1/60) and m < 60*40: # tant qu'on a pas rencontré de bille et donc que la balle est en mouvement
             if(m%60 == self.i):
-                self.pointilles.append(self.canevas.create_oval(*(point.centre-Vector2(rayon, rayon)), *(point.centre+Vector2(rayon, rayon)), fill=point.couleur))
+                self.pointilles.append(self.canevas.create_oval(*(point.centre-Vector2(rayon, rayon)), *(point.centre+Vector2(rayon, rayon)), fill=point.couleur, outline=""))
             m+=1
         self.pointilles.append(self.canevas.create_oval(*(point.centre-Vector2(self.rayon_billes, self.rayon_billes)), *(point.centre+Vector2(self.rayon_billes, self.rayon_billes)), fill=self.balle_canon.couleur))
         self.i= (self.i+7)%60
@@ -195,7 +195,6 @@ class FenetresJeu:
         """Actualise le temps total de jeu et le score."""
         
 
-    # TODO fix collision
     def deplacer_balle(self, balle: Balle, dt: float) -> bool:
         """
         Déplace une balle sur dt secondes et prend en compte les collisions.
