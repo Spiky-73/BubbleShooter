@@ -1,10 +1,12 @@
+import copy
+import dataclasses
 import time # pour le chronomètre
 import tkinter as tk
 import random # pour générer les couleurs des billes
 import csv # pour charger les niveaux
 import math
 
-from balle import Balle, RAYON
+from balle import Balle
 from utilitaire import Vector2, Vector2Int
 
 class FenetresJeu:
@@ -29,17 +31,18 @@ class FenetresJeu:
 
         self._init_niveau()
     
-        self.balle = None
+        self.balle: Balle = None
         self.creer_balle_canon()
 
-        self.delta = 1000//30 # floor division, pour s'actualiser toutes les 1000/30 msec
+        self.delta = 1000//60 # floor division, pour s'actualiser toutes les 1000/60 msec
         self.update()
 
 
     def _creer_widgets(self):
         """Ajoute l'interface du jeu et ses données/statistiques : score, temps écoulé, nombre de billes éclatées..."""
 
-        self.canevas = tk.Canvas(self.racine, bg="light blue", height=700, width=500)
+        self.taille_canevas = Vector2Int(500, 700)
+        self.canevas = tk.Canvas(self.racine, bg="light blue", height=self.taille_canevas.y, width=self.taille_canevas.x)
         self.canevas.pack()
 
         self.canevas.create_image(0, -60, image = self.img_nuages, anchor=tk.NW)
@@ -63,14 +66,14 @@ class FenetresJeu:
         self.fichier = f"niveaux/{self.niveau}.csv"
 
         self.billes: list[list[int]] = []
+        self.rayon_billes = 10
         self.voisins = [
             Vector2Int(-1,0), Vector2Int(1,0),
             Vector2Int(0,-1), Vector2Int(0,1)
         ]
-        self.init_jeu_dico = {}
+        self.dico_color = {}
         with open(self.fichier, encoding='utf-8') as csvfile: # lecture du fichier csv contenant le niveau choisi
             reader = csv.reader(csvfile,  delimiter=",")
-            self.dico_color = {}
             for j, ligne in enumerate(reader):
                 for i, c in enumerate(ligne): 
                     if c!="0": # guillemets car chaîne de caractères
@@ -81,17 +84,19 @@ class FenetresJeu:
                         color = self.dico_color[c]
                         self.place_bille(Vector2Int(i,j), color)
 
+        self.pointilles: list[int] = []
+        self.vitesse_balle =50 # pixels/s
         self.position_canon = Vector2(250,675) # là où on tire la balle, en bas au centre
 
     
     def place_bille(self, bille: Vector2Int, color: str):
         """Ajoute une bille sur le caneva."""
         position = self.coordonees_to_position(bille)
-        while bille.y>=len(self.billes) #tant qu'on ne dépasse pas le cadre
+        while len(self.billes) <= bille.y: # tant qu'on ne dépasse pas le cadre
             self.billes.append([])
-        while bille.x>=len(self.billes[bille.y]):
+        while len(self.billes[bille.y]) <= bille.x:
             self.billes[bille.y].append(-1)
-        self.billes[bille.y][bille.x] = self.canevas.create_oval(position.x-RAYON,position.y-RAYON, position.x+RAYON, position.y+RAYON, fill=color)
+        self.billes[bille.y][bille.x] = self.canevas.create_oval(position.x-self.rayon_billes,position.y-self.rayon_billes, position.x+self.rayon_billes, position.y+self.rayon_billes, fill=color)
               
 
     #def calcul_score(self,event):
@@ -104,8 +109,9 @@ class FenetresJeu:
     def creer_balle_canon(self):
         """Crée la balle au niveau du canon à balles (en bas de la fenêtre) et choisi sa couleur aléatoirement."""
         couleur = random.choice(list(self.dico_color.values()))
-        self.balle_canon = Balle(self.position_canon, Vector2(1,1), couleur, -1)
-        id = self.canevas.create_oval(self.balle_canon.position.x,self.balle_canon.position.y,self.balle_canon.position.x+2*RAYON,self.balle_canon.position.y+2*RAYON, fill= self.balle_canon.couleur)
+        self.balle_canon = Balle(self.position_canon, self.rayon_billes, Vector2(1,1), couleur, -1)
+        x,y  = self.balle_canon.centre
+        id = self.canevas.create_oval(*self.balle_canon.coin_NW,*self.balle_canon.coin_SE, fill=self.balle_canon.couleur)
         self.balle_canon.id = id
     
 
@@ -129,14 +135,23 @@ class FenetresJeu:
 
     def _prediction_trajectoire(self):
         """Simule la trajectoire de la balle et l'affiche pour guider le joueur."""
+        for id in self.pointilles:
+            self.canevas.delete(id)
 
         if(self.balle is not None): return # on ne fait rien si la balle est lancée et est en mouvement
+        delta = self.position_souris - self.position_canon
+        angle = math.atan2(delta.y, delta.x)
+        self.balle_canon.vitesse = Vector2(math.cos(angle), math.sin(angle)) * self.vitesse_balle
+        point = Balle(copy.copy(self.position_canon), self.balle_canon.rayon, copy.copy(self.balle_canon.vitesse), 'black', -1) # pointillés noirs qui simulent la trajectoire
 
+        
+        m=1
         rayon = 2
-        point = Balle(self.position_canon, Vector2(1,1), 'black', -1) # pointillés noirs qui simulent la trajectoire
-        while self.collision_bille(point) == None: # tant qu'on a pas rencontré de bille et donc que la balle est en mouvement
-            self.deplacer_balle(point, 15 * self.delta)
-            self.pointille = self.canevas.create_oval(point.position.x-rayon, point.position.y-rayon, point.position.x+rayon, point.position.y+rayon, fill=point.couleur)
+        while self.collision_bille(point) == None and not self.deplacer_balle(point, 1/60) and m < 60*40: # tant qu'on a pas rencontré de bille et donc que la balle est en mouvement
+            if(m%60 == 30):
+                self.pointilles.append(self.canevas.create_oval(*(point.centre-Vector2(rayon, rayon)), *(point.centre+Vector2(rayon, rayon)), fill=point.couleur))
+            m+=1
+        self.pointilles.append(self.canevas.create_oval(*(point.centre-Vector2(self.rayon_billes, self.rayon_billes)), *(point.centre+Vector2(self.rayon_billes, self.rayon_billes)), fill=self.balle_canon.couleur))
 
 
     def envoi_balle(self, event) : 
@@ -147,8 +162,11 @@ class FenetresJeu:
         """Contrôle le déplacement de la balle."""
         if(self.balle is None): return
 
-        self.deplacer_balle(self.balle, self.delta)
-        self.canevas.moveto(self.balle.id, self.balle.position.x+RAYON, self.balle.position.y+RAYON)
+        if(self.deplacer_balle(self.balle, self.delta)): # si on touche le haut du canevas
+            self.place_balle(self.balle)
+            return
+        
+        self.canevas.moveto(self.balle.id, *self.balle.coin_NW)
 
         bille = self.collision_bille(self.balle)
         if(bille is None) : return
@@ -161,7 +179,7 @@ class FenetresJeu:
             if(len(groupe) < 2): # si la chaine de billes de même couleur ainsi formée est < 2
                 self.place_balle(self.balle) # la balle se place et devient une bille
             else:
-                anim = self.canevas.create_image(self.balle.position.x,self.balle.position.y, image = self.img_eclats, anchor=tk.CENTER) # animation
+                anim = self.canevas.create_image(*self.balle.centre, image = self.img_eclats, anchor=tk.CENTER) # animation
                 self.racine.after(1000+random.randint(-250, 250), self._eclate_bille_fin, anim)
                 for b in groupe:
                     time.sleep(0.1)
@@ -176,30 +194,33 @@ class FenetresJeu:
         """Actualise le temps total de jeu et le score."""
         
 
-    def deplacer_balle(self, balle: Balle, dt: float):
-        """Déplace une balle sur dt secondes et prend en compte les collisions."""
-        balle.position.x += balle.vitesse.x * dt
-        balle.position.y += balle.vitesse.y * dt
+    # TODO fix collision
+    def deplacer_balle(self, balle: Balle, dt: float) -> bool:
+        """
+        Déplace une balle sur dt secondes et prend en compte les collisions.
+        Renvoie vrai si la balle touche le mur du haut
+        """
+        balle.centre += balle.vitesse * dt
 
-        if balle.position.x < 0 : # si la bille sort de la fenetre
-            balle.position.x = 0
-            
-            balle.vitesse.x = -balle.vitesse.x # elle rebondit contre le mur
-        elif balle.position.x + RAYON > 500 : # position de la bille et position du bord
-            balle.position.x = 500 - RAYON # bord - bille car la fenetre fait 500x700
-            balle.vitesse.x = - balle.vitesse.x
+        if balle.coin_NW.x < 0 : # si la bille sort de la fenetre
+            balle.centre.x = balle.rayon - balle.coin_NW.x
+            balle.vitesse.x *= -1 # elle rebondit contre le mur
+
+        elif balle.coin_SE.x > self.taille_canevas.x : # position de la bille et position du bord
+            balle.centre.x = self.taille_canevas.x-balle.rayon - (balle.coin_SE.x-self.taille_canevas.x)
+            balle.vitesse.x *= -1
         
-        if balle.position.y < 0 : # on fait pour toutes les directions
-            balle.position.y = 0
-            balle.vitesse.y = - balle.vitesse.y  
-        elif balle.position.y + RAYON > 700 : # bille - bord
-            balle.position.y = 700 - RAYON # bord - bille
-            balle.vitesse.y = - balle.vitesse.y  
+        if balle.coin_NW.y < 0 : # on fait pour toutes les directions
+            return True
+        elif balle.coin_SE.y > self.taille_canevas.y : # bille - bord
+            balle.centre.y =  self.taille_canevas.y-balle.rayon - (balle.coin_SE.y-self.taille_canevas.y)
+            balle.vitesse.y *= -1
+        return False
 
 
-    def collision_bille(self, balle: Balle):
+    def collision_bille(self, balle: Balle) -> Vector2Int:
         """Renvoie les coordonnées de la bille touchée ou None si la balle ne touche pas de bille."""
-        coord = self.position_to_coordonees(balle.position)
+        coord = self.position_to_coordonees(balle.centre)
         bille = None
         voisins = [
             Vector2Int(-1,-1), Vector2Int(0,-1), Vector2Int(1,-1), # les 8 voisins autour de la balle
@@ -207,20 +228,19 @@ class FenetresJeu:
             Vector2Int(-1,1),  Vector2Int(0,1),  Vector2Int(1,1)
         ]
         i = 0
-        while i < 9 and bille is None:
+        while i < len(voisins) and bille is None:
             n_pos = voisins[i]+coord
             if 0 <= n_pos.y and n_pos.y < len(self.billes) and 0 <= n_pos.x and n_pos.x < len(self.billes[n_pos.y]):
                 id = self.billes[n_pos.y][n_pos.x]
-                if(id != -1 and balle.position.distance(self.coordonees_to_position(n_pos)) <= 2*RAYON): # teste s'il y a contact
+                if(id != -1 and balle.centre.distance(self.coordonees_to_position(n_pos)) <= balle.rayon + self.rayon_billes): # teste s'il y a contact
                     bille = n_pos
             i+=1
         
         return bille
 
-
     def place_balle(self, balle: Balle):
         """Place la balle dans la cellule la plus proche."""
-        bille = self.position_to_coordonees(balle.position)
+        bille = self.position_to_coordonees(balle.centre)
         self.place_bille(bille, balle.couleur)
         
 
@@ -263,11 +283,11 @@ class FenetresJeu:
 
     def position_to_coordonees(self, position: Vector2) -> Vector2Int:
         """Convertit la position du centre d'une bille du canevas en coordonnées dans la grille de bille."""
-        position = (position - Vector2(RAYON, RAYON)) / (2*RAYON)
+        position = (position - Vector2(self.rayon_billes, self.rayon_billes)) / (2*self.rayon_billes)
         return Vector2Int(round(position.x), round(position.y))
 
     def coordonees_to_position(self, coords: Vector2Int) -> Vector2:
         """Convertit des coordonnées dans la grille de bille en position sur le canevas"""
-        coords = coords*2*RAYON
-        coords += Vector2Int(RAYON, RAYON)
+        coords = coords*2*self.rayon_billes
+        coords += Vector2Int(self.rayon_billes, self.rayon_billes)
         return Vector2(coords.x, coords.y)

@@ -1,4 +1,5 @@
 import dataclasses
+from typing import Iterator
 
 @dataclasses.dataclass
 class Vector2:
@@ -23,6 +24,9 @@ class Vector2:
 
     def distance(self, other) -> float:
         return (self-other).norme
+    
+    def __iter__(self) -> Iterator[float]:
+        return iter(dataclasses.astuple(self))
 
 
 @dataclasses.dataclass
@@ -48,3 +52,6 @@ class Vector2Int:
 
     def distance(self, other) -> float:
         return (self-other).norme
+    
+    def __iter__(self) -> Iterator[float]:
+        return iter(dataclasses.astuple(self))
