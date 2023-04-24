@@ -1,5 +1,5 @@
 """
-Executez ce fichier pour jouer au jeu
+Exécutez ce fichier pour jouer au jeu
 """
 
 import pathlib
@@ -7,7 +7,6 @@ import tkinter as tk
 from tkinter import messagebox
 
 from fenetreJeu import FenetresJeu
-
 
 class FenetresMenu:
     
@@ -17,6 +16,7 @@ class FenetresMenu:
         self.racine.resizable(height = False, width = False)
         
         self._creer_widgets()
+
 
     def _creer_widgets(self):
         """Ajoute l'interface du menu."""
@@ -31,7 +31,7 @@ class FenetresMenu:
         self.lb_niveau = tk.Label(self.racine, text = "\nChoisissez le niveau :", font='Helvetica 11 bold')
         self.lb_niveau.pack(side=tk.TOP, fill='x')
 
-        path = pathlib.Path("niveaux")
+        path = pathlib.Path("Niveaux")
         self.btns_niveaux: list[tk.Button] = []
         for niveau in path.glob('*.csv'):
             _, nom = str(niveau).removesuffix(".csv").split("\\")
@@ -40,11 +40,13 @@ class FenetresMenu:
             btn.bind('<Button-1>', self._lancer_jeu)
             self.btns_niveaux.append(btn)
 
+
     def _lancer_jeu(self, event: tk.Event):
         self.lancer_jeu(event.widget["text"])
     
+    
     def lancer_jeu(self, niveau: str):
-        """Cree la fenêtre de jeu et ferme la fenêtre principale."""
+        """Crée la fenêtre de jeu et ferme la fenêtre principale."""
         self.racine.destroy()
         jeu = FenetresJeu(niveau)
         jeu.racine.mainloop()

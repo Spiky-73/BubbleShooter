@@ -9,7 +9,6 @@ class Vector2:
     def norme(self) -> float:
         return (self.x**2 + self.y**2)**0.5
 
-
     def __add__(self, other):
         return Vector2(self.x + other.x, self.y + other.y)
 
@@ -26,7 +25,6 @@ class Vector2:
         return (self-other).norme
 
 
-
 @dataclasses.dataclass
 class Vector2Int:
     x: int
@@ -35,7 +33,6 @@ class Vector2Int:
     @property
     def norme(self) -> float:
         return (self.x**2 + self.y**2)**0.5
-
 
     def __add__(self, other):
         return Vector2Int(self.x + other.x, self.y + other.y)
