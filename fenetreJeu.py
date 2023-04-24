@@ -29,7 +29,7 @@ class FenetresJeu:
 
         self._init_niveau()
     
-        self.balle: Balle | None = None
+        self.balle = None
         self.creer_balle_canon()
 
 
@@ -203,7 +203,7 @@ class FenetresJeu:
             balle.position.y = 700 - RAYON # bord - bille
             balle.vitesse.y = - balle.vitesse.y  
 
-    def collision_bille(self, balle: Balle) -> Vector2Int | None:
+    def collision_bille(self, balle: Balle):
         """Renvoie les coordonnées de la bille touchée ou None si la balle ne touche pas de bille."""
 
         if balle.position.x + RAYON or balle.position.y + RAYON == self.x_bille + RAYON or self.y_bille + RAYON : # teste s'il y a collision entre la balle et une bille déjà placée
