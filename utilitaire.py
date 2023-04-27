@@ -29,7 +29,7 @@ class Vector2:
         return iter(dataclasses.astuple(self))
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(unsafe_hash=True)
 class Vector2Int:
     x: int
     y: int
