@@ -33,8 +33,6 @@ class FenetresJeu:
 
         self._init_niveau()
 
-        for i in range(0, 100, 3):
-            print(i, self.position_to_coordonees(Vector2(i, 20)))    
         self.balle: Balle = None
         self.creer_balle_canon()
 
@@ -154,10 +152,13 @@ class FenetresJeu:
         
         m=0 #pointillés bougent
         rayon = 2
-        while not self.collision_bille(point) and not self.deplacer_balle(point, 1/240) and m < 60*40: # tant qu'on a pas rencontré de bille et donc que la balle est en mouvement
+        while (not self.collision_bille(point)) & (not self.deplacer_balle(point, 1/240)) and m < 60*40: # tant qu'on a pas rencontré de bille et donc que la balle est en mouvement
             if(m%10 == self.i):
                 self.pointilles.append(self.canevas.create_oval(*(point.centre-Vector2(rayon, rayon)), *(point.centre+Vector2(rayon, rayon)), fill=point.couleur, outline=""))
             m+=1
+        point.vitesse *=-1
+        while (self.collision_bille(point) | self.deplacer_balle(point, 1/1000)): # tant qu'on a pas rencontré de bille et donc que la balle est en mouvement
+            pass
         self.pointilles.append(self.canevas.create_oval(*(point.centre-Vector2(self.rayon_billes, self.rayon_billes)), *(point.centre+Vector2(self.rayon_billes, self.rayon_billes)), fill=self.balle_canon.couleur))
         self.i= (self.i+1)%10
 
@@ -183,7 +184,6 @@ class FenetresJeu:
                 )):
                     break
                 self.deplacer_balle(self.balle, self.delta/1000)
-                # tanque que la balle se poserais sur une case occupe ou hors du canevas, reculler la balle
             col = self.balle.couleur
             bille = self.place_balle(self.balle)
             self.test_eclate_billes(bille, col)
@@ -217,7 +217,6 @@ class FenetresJeu:
             balle.vitesse.x *= -1
     
         if balle.coin_NW.y < 0 : # on fait pour toutes les directions
-            balle.centre.y = balle.rayon
             return True
         elif balle.coin_SE.y > self.taille_canevas.y : # bille - bord
             balle.centre.y =  self.taille_canevas.y-balle.rayon - (balle.coin_SE.y-self.taille_canevas.y)
