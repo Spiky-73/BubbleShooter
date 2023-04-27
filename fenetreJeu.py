@@ -15,6 +15,8 @@ class FenetresJeu:
         """Initialise la fenêtre de jeu avec le niveau choisi."""
 
         self.niveau = niveau
+        if self.viveau=='aleatoire':
+            self.niveau_aleatoire()
         self.couleurs = ["red", "green", "blue", "yellow", "magenta", "cyan", "white", "purple"]
 
         self.racine = tk.Tk()        
@@ -297,5 +299,15 @@ class FenetresJeu:
         position = coords*2*self.rayon_billes
         position += Vector2Int(self.rayon_billes, self.rayon_billes)
         return Vector2(position.x, position.y)
-
-
+    
+    def niveau_aleatoire(self, nb_color):
+        liste_ligne=[]
+        import csv
+        with open(self.fichier, encoding='utf-8') as fichiercsv:
+            writer=csv.writer(fichiercsv)
+            for i in range (19):
+                for j in range(25):
+                    nb=random.randint(0, len(self.dico_color ))
+                    liste_ligne.append(nb)
+                writer.writerow(liste_ligne)
+        
