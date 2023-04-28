@@ -54,7 +54,19 @@ class FenetresMenu:
 
     def affiche_regles_jeu(self, event):
         """Ouvre une message box contenant les règles du jeu."""
-        messagebox.showinfo("Règles du jeu ", "...")  
+        messagebox.showinfo("Règles du jeu ", 
+                            "Objectif : \nExplose toutes les billes pour vider ton plateau ! \n "
+                            
+                            "\n Pour y parvenir, il faut lancer la balle sur les billes du plateau de la même couleur. Si la balle touche un groupe de deux billes de la même couleur ou plus, alors ce groupe éclate."
+                            
+                            "\n \nCommandes :\n"
+                            "À l’aide de ta souris, glisse sur l'endroit où tu veux envoyer la balle. Un tracé de ton lancement apparaitra et t’aidera beaucoup à viser ta cible. Lorsque tu es certain de ton plan de tir, il suffit de cliquer.\n"
+
+                            "Tu peux te servir des parois pour faire rebondir ta balle et parvenir aux endroits les plus inaccessibles.\n"
+
+                            "À chaque bille éclatée, tu gagnes des points. Si tu manques ton coup, ta bulle se collera aux autres et te rajoutera un handicap pour atteindre ton but.\n "
+
+                            "\nSi une des billes touche le bas du plateau, tu perds la partie. En revanche, si tu les élimines toutes, tu gagnes la partie :)\n")  
         
         
 if __name__ == "__main__":
