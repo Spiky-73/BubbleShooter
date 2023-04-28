@@ -47,8 +47,8 @@ class FenetresJeu:
         self.balle: Balle = None
         self.creer_balle_canon()
 
-        self.delta = 1/30 # floor division, pour s'actualiser toutes les 1000/60 msec
-        self.temp_update = time.time()
+        self.FPS = 60
+        self.delta = 1/self.FPS # floor division, pour s'actualiser toutes les 1000/60 msec
         self.update()
 
 
@@ -101,8 +101,8 @@ class FenetresJeu:
 
         self.billes: list[list[int]] = []
         x = self.taille_canevas.x // (2*self.rayon_billes)
-        hauteur = (2*self.rayon_billes)*math.cos(math.pi/6)
-        self.taille_grille = (x, x-1, int(self.taille_canevas.y/hauteur))
+        self.hauteur = (2*self.rayon_billes)*math.cos(math.pi/6)
+        self.taille_grille = (x, x-1, int(self.taille_canevas.y/self.hauteur))
         for y in range(self.taille_grille[2]):
             l = [-1 for _ in range(x - y%2)]
             self.billes.append(l)
@@ -158,16 +158,20 @@ class FenetresJeu:
         Appelle toutes les fonctions liées au mouvement de la balle (timer) et du jeu.
         """
 
+        temp_update = time.time()
         self._prediction_trajectoire()
         self._update_balle()
         self._update_score()
-        temps =  time.time()
 
         # fps en fonction du temps de la fonction
-        delai = int(max(float(0.001), self.delta-(temps-self.temp_update))*1000)
-        self.temp_update = temps
+        temps = time.time()
+        tps_update = temps-temp_update
+        delai = int((self.delta-tps_update)*1000)
+        if(delai <= 0):
+            if(tps_update > 1.5*self.delta):
+                print(f"LOW FPS ({int(1/tps_update)}/{self.FPS})")
+            delai = 1
         self.racine.after(delai, self.update)
-        # self.racine.after(1000//60, self.update)
 
 
     def _prediction_trajectoire(self):
@@ -333,9 +337,8 @@ class FenetresJeu:
     
     def position_to_coordonees(self, position: Vector2) -> Vector2Int:
         """Convertit la position du centre d'une bille du canevas en coordonnées dans la grille de bille."""
-        hauteur = (2*self.rayon_billes)*math.cos(math.pi/6)
-        side = hauteur/(1+math.cos(math.pi/3))
-        y, rem_y = divmod(position.y-self.rayon_billes+side/2, hauteur)
+        side = self.hauteur/(1+math.cos(math.pi/3))
+        y, rem_y = divmod(position.y-self.rayon_billes+side/2, self.hauteur)
 
         correction = 0
         if(rem_y > side and y != -1): correction = (rem_y-side) * math.tan(math.pi/3)
@@ -353,8 +356,7 @@ class FenetresJeu:
 
     def coordonees_to_position(self, coords: Vector2Int) -> Vector2:
         """Convertit des coordonnées dans la grille de bille en position sur le canevas"""
-        hauteur = (2*self.rayon_billes)*math.cos(math.pi/6)
-        return Vector2(self.rayon_billes + coords.x*self.rayon_billes*2 + (self.rayon_billes * ((coords.y-self.grande_ligne)%2)), self.rayon_billes + coords.y * hauteur)
+        return Vector2(self.rayon_billes + coords.x*self.rayon_billes*2 + (self.rayon_billes * ((coords.y-self.grande_ligne)%2)), self.rayon_billes + coords.y * self.hauteur)
     
     def niveau_aleatoire(self, nb_color):
         liste_ligne=[]
