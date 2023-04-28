@@ -15,7 +15,7 @@ class FenetresJeu:
         """Initialise la fenêtre de jeu avec le niveau choisi."""
 
         self.niveau = niveau
-        if self.viveau=='aleatoire':
+        if self.niveau=='aleatoire':
             self.niveau_aleatoire()
         self.couleurs = ["red", "green", "blue", "yellow", "magenta", "cyan", "white", "purple"]
 
@@ -33,6 +33,13 @@ class FenetresJeu:
 
         self._init_niveau()
 
+        # debug de la grille hexagonale 
+        # cols = [["red", "orange", "yellow"], ["blue", "cyan", "green"]]
+
+        # for x in range(0,150):
+        #     for y in range(0,150):
+        #         coords = self.position_to_coordonees(Vector2(x,y))
+        #         self.canevas.create_rectangle(x,y, x, y, fill=cols[coords.y%2][coords.x%3], outline="")
         self.balle: Balle = None
         self.creer_balle_canon()
 
@@ -69,12 +76,21 @@ class FenetresJeu:
 
         self.fichier = f"niveaux/{self.niveau}.csv"
 
+        self.grande_ligne = 0
         self.billes: list[list[int]] = []
         self.rayon_billes = 10
-        self.voisins = [
-            Vector2Int(-1,0), Vector2Int(1,0),
-            Vector2Int(0,-1), Vector2Int(0,1)
+
+        self.voisins_gl = [
+                    Vector2Int(-1,-1), Vector2Int(0,-1),
+            Vector2Int(-1,0),  Vector2Int(0,0),  Vector2Int(1,0),
+                    Vector2Int(-1,1),  Vector2Int(0,1)
         ]
+        self.voisins_pl = [
+                    Vector2Int(0,-1), Vector2Int(1,-1), 
+            Vector2Int(-1,0),  Vector2Int(0,0),  Vector2Int(1,0),
+                    Vector2Int(0,1),  Vector2Int(1,1)
+        ]
+
         self.dico_color = {}
         with open(self.fichier, encoding='utf-8') as csvfile: # lecture du fichier csv contenant le niveau choisi
             reader = csv.reader(csvfile,  delimiter=",")
@@ -193,7 +209,6 @@ class FenetresJeu:
         groupe = self.get_groupe(bille)
         if(len(groupe) >=3): # si la chaine de billes de même couleur ainsi formée est < 2
             for b in groupe:
-                time.sleep(0.1)
                 self.eclate_bille(b) # on éclate car le chaîne ainsi formée comporte au minimum 3 billes de la même couleur
 
 
@@ -228,11 +243,7 @@ class FenetresJeu:
     def collision_bille(self, balle: Balle) -> bool:
         """Renvoie les coordonnées de la bille touchée ou None si la balle ne touche pas de bille."""
         coord = self.position_to_coordonees(balle.centre)
-        voisins = [
-            Vector2Int(-1,-1), Vector2Int(0,-1), Vector2Int(1,-1), # les 8 voisins autour de la balle
-            Vector2Int(-1,0),  Vector2Int(0,0),  Vector2Int(1,0),
-            Vector2Int(-1,1),  Vector2Int(0,1),  Vector2Int(1,1)
-        ]
+        voisins = self.voisins_gl if coord.y%2 == self.grande_ligne else self.voisins_pl
         for delta in voisins:
             n_pos = delta + coord
             if 0 <= n_pos.y and n_pos.y < len(self.billes) and 0 <= n_pos.x and n_pos.x < len(self.billes[n_pos.y]):
@@ -253,13 +264,13 @@ class FenetresJeu:
 
     def get_groupe(self, bille: Vector2Int) -> list[Vector2Int]:
         """ Renvoie les coordonnées des billes formant un groupe de couleur."""
-        
         groupe = [bille]
         attente = [bille]
         color: str = self.canevas.itemcget(self.billes[bille.y][bille.x], "fill")
         while len(attente) != 0:
             pos = attente.pop()
-            for delta in self.voisins:
+            voisins = self.voisins_gl if pos.y%2 == self.grande_ligne else self.voisins_pl
+            for delta in voisins:
                 n_pos = pos + delta
                 if 0 <= n_pos.y and n_pos.y < len(self.billes) and 0 <= n_pos.x and n_pos.x < len(self.billes[n_pos.y]) and not n_pos in groupe:
                     id = self.billes[n_pos.y][n_pos.x]
@@ -277,7 +288,7 @@ class FenetresJeu:
         self.billes[bille.y][bille.x] = -1
         self.canevas.delete(id)
         anim = self.canevas.create_image(pos.x,pos.y, image = self.img_eclats, anchor=tk.CENTER)
-        self.racine.after(1000+random.randint(-250, 250), self._eclate_bille_fin, anim)
+        self.racine.after(random.randint(100, 500), self._eclate_bille_fin, anim)
 
     def _eclate_bille_fin(self, anim_id: int):
         self.canevas.delete(anim_id)
@@ -287,17 +298,46 @@ class FenetresJeu:
         """Arrête le jeu (sortir de la fonction update) s'il n'y a plus de billes et affiche le score dans une messagebox."""
         pass
 
-
-    def position_to_coordonees(self, position: Vector2) -> Vector2Int:
+    
+    def position_to_coordonees_square(self, position: Vector2) -> Vector2Int:
         """Convertit la position du centre d'une bille du canevas en coordonnées dans la grille de bille."""
         coords = (position - Vector2(self.rayon_billes, self.rayon_billes)) / (2*self.rayon_billes)
         return Vector2Int(round(coords.x), round(coords.y))
 
-    def coordonees_to_position(self, coords: Vector2Int) -> Vector2:
+    def coordonees_to_position_square(self, coords: Vector2Int) -> Vector2:
         """Convertit des coordonnées dans la grille de bille en position sur le canevas"""
         position = coords*2*self.rayon_billes
         position += Vector2Int(self.rayon_billes, self.rayon_billes)
         return Vector2(position.x, position.y)
+    
+    def position_to_coordonees(self, position: Vector2) -> Vector2Int:
+        """Convertit la position du centre d'une bille du canevas en coordonnées dans la grille de bille."""
+        hauteur = (2*self.rayon_billes)*math.cos(math.pi/6)
+        side = hauteur/(1+math.cos(math.pi/3))
+        y, rem_y = divmod(position.y-self.rayon_billes+side/2, hauteur)
+
+        correction = 0
+        if(rem_y > side and y != -1): correction = (rem_y-side) * math.tan(math.pi/3)
+        position_x = position.x - correction
+        if y < 0: y = 0
+        grande_line = y%2 == self.grande_ligne
+
+        x, rem_x = divmod(position_x - (self.rayon_billes if not grande_line else 0), self.rayon_billes*2)
+        if(correction != 0):
+            if(rem_x > (self.rayon_billes-correction)*2):
+                y += 1
+                grande_line = not grande_line
+                if(grande_line):
+                    x+=1
+
+        x = max(0, min(x, 25 if grande_line else 24))
+        
+        return Vector2Int(int(x), int(y))
+
+    def coordonees_to_position(self, coords: Vector2Int) -> Vector2:
+        """Convertit des coordonnées dans la grille de bille en position sur le canevas"""
+        hauteur = (2*self.rayon_billes)*math.cos(math.pi/6)
+        return Vector2(self.rayon_billes + coords.x*self.rayon_billes*2 + (self.rayon_billes if coords.y%2 != self.grande_ligne else 0), self.rayon_billes + coords.y * hauteur)
     
     def niveau_aleatoire(self, nb_color):
         liste_ligne=[]
