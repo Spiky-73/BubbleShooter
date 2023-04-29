@@ -10,7 +10,9 @@ from fenetreJeu import FenetresJeu
 
 class FenetresMenu:
     
-    def __init__(self):
+    def __init__(self): 
+        """ Constructeur pour intialiser la fenêtre principale de menu du jeu. """
+
         self.racine = tk.Tk()
         self.racine.title("Bubble Shooter")
         self.racine.resizable(height = False, width = False)
@@ -19,9 +21,9 @@ class FenetresMenu:
 
 
     def _creer_widgets(self):
-        """Ajoute l'interface du menu."""
+        """ Ajoute l'interface du menu. """
         
-        self.lb_nom = tk.Label(self.racine, text = "\nBUBBLE SHOOTER:", font='Helvetica 18 bold')
+        self.lb_nom = tk.Label(self.racine, text = "\nBUBBLE SHOOTER", font='Helvetica 18 bold')
         self.lb_nom.pack(side=tk.TOP, fill='x')
         
         self.btn_regles=tk.Button(self.racine, text='Règles du jeu')
@@ -47,6 +49,7 @@ class FenetresMenu:
     
     def lancer_jeu(self, niveau: str):
         """Crée la fenêtre de jeu et ferme la fenêtre principale."""
+        
         self.racine.destroy()
         jeu = FenetresJeu(niveau)
         jeu.racine.mainloop()
