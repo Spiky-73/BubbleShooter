@@ -1,5 +1,5 @@
 """
-Exécutez ce fichier pour jouer au jeu
+Exécutez ce fichier pour jouer au jeu.
 """
 
 import pathlib
@@ -27,7 +27,7 @@ class FenetresMenu:
         self.lb_nom.pack(side=tk.TOP, fill='x')
         
         self.btn_regles=tk.Button(self.racine, text='Règles du jeu')
-        self.btn_regles.pack(side=tk.TOP, fill='x')
+        self.btn_regles.pack(side=tk.TOP, fill='x') # pour que le bouton prenne toute la longueur
         self.btn_regles.bind('<Button-1>', self.affiche_regles_jeu)
         
         self.lb_niveau = tk.Label(self.racine, text = "\nChoisissez le niveau :", font='Helvetica 11 bold')
@@ -35,7 +35,7 @@ class FenetresMenu:
 
         path = pathlib.Path("Niveaux")
         self.btns_niveaux: list[tk.Button] = []
-        for niveau in path.glob('*.csv'):
+        for niveau in path.glob('*.csv'): # lecture des fichiers csv contenant la disposition prédéfinie des billes (niveaux)
             _, nom = str(niveau).removesuffix(".csv").split("\\")
             btn = tk.Button(self.racine, text=nom)
             btn.pack(side=tk.BOTTOM, anchor=tk.N)
@@ -44,7 +44,7 @@ class FenetresMenu:
 
 
     def _lancer_jeu(self, event: tk.Event):
-        self.lancer_jeu(event.widget["text"])
+        self.lancer_jeu(event.widget["text"]) # la fonction est appelée par l'event
     
     
     def lancer_jeu(self, niveau: str):
