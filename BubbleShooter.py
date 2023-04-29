@@ -38,9 +38,9 @@ class FenetresMenu:
         self.var_theme.set(themes[0]) # default value
         self.om_theme = OptionMenu(self.racine, self.var_theme, *themes)
         self.om_theme.pack(side=tk.TOP, anchor=tk.N)
+
         self.lb_niveau = tk.Label(self.racine, text = "\nChoisissez le niveau :", font='Helvetica 11 bold')
         self.lb_niveau.pack(side=tk.TOP, fill='x')
-
         path = pathlib.Path("niveaux")
         self.btns_niveaux: list[tk.Button] = []
         for niveau in path.glob('*.csv'): # lecture des fichiers csv contenant la disposition prédéfinie des billes (niveaux)

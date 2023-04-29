@@ -23,7 +23,7 @@ def charge_theme(theme: str) -> None:
     path = f"{dossier}/{theme}.json"
     content = {}
     try:
-        # Essai de lecture du fichier
+        # lecture du fichier
         with open(path) as file: content = json.load(file)
 
         # conformité des champs
@@ -32,7 +32,7 @@ def charge_theme(theme: str) -> None:
         for c in content["billes"]:
             assert is_color(c), "couleurs de billes invalide"
 
-        # chargement du theme
+        # changement du theme
         nom = theme
         fond = content["fond"]
         billes = content["billes"]
