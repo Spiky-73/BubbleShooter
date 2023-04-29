@@ -36,14 +36,6 @@ class FenetresJeu:
 
         self._init_niveau()
 
-        # debug de la grille hexagonale 
-        # cols = [["red", "orange", "yellow"], ["blue", "cyan", "green"]]
-
-        # for x in range(0,150):
-        #     for y in range(0,150):
-        #         coords = self.position_to_coordonees(Vector2(x,y))
-        #         self.canevas.create_rectangle(x,y, x, y, fill=cols[coords.y%2][coords.x%3], outline="")
-
         self.balle: Balle = None
         self.creer_balle_canon()
 
@@ -64,9 +56,6 @@ class FenetresJeu:
 
         self.timer = tk.Label(self.racine, text = "\nTemps écoulé ", font = 'Helvetica 11 bold') # affichage des statistiques
         self.timer.pack(side=tk.RIGHT, fill='x')
-        
-        #compteur = math.inf # pour le chronomètre 
-        #running = False
 
         self.nbr_billes_eclatees = tk.Label(self.racine, text = "\nNombre de billes éclatées ", font = 'Helvetica 11 bold')
         self.nbr_billes_eclatees.pack(side=tk.RIGHT, fill='x')
@@ -74,11 +63,15 @@ class FenetresJeu:
         self.score = tk.Label(self.racine, text = "\nScore ", font = 'Helvetica 11 bold')
         self.score.pack(side=tk.RIGHT, fill='x')
 
+
         self.rayon_pointilles = 2
+        self.pointilles_visibles = 0
+        self.offset_pointilles = 0
+        self.espacement_pointilles = 75
         self.pointilles: list[int] = []
         for _ in range(50):
             self.pointilles.append(self.canevas.create_oval(-self.rayon_pointilles, -self.rayon_pointilles, self.rayon_pointilles, self.rayon_pointilles, fill="", outline=""))
-        self.pointilles.append(self.canevas.create_oval(*(self.centre_bille*-1), *(self.centre_bille), fill=""))
+        self.pointilles.append(self.canevas.create_oval(*(self.centre_bille*-1), *(self.centre_bille), fill="", outline=""))
 
 
     def _init_niveau(self):
@@ -123,10 +116,8 @@ class FenetresJeu:
                         color = self.dico_color[c]
                         self.place_bille(Vector2Int(i,j), color)
 
-        self.vitesse_balle = 600 # pixels/s
+        self.vitesse_balle = 750 # pixels/s
         self.position_canon = Vector2(250,675) # là où on tire la balle, en bas au centre
-        self.offset_pointilles = 0
-
     
     def place_bille(self, bille: Vector2Int, color: str):
         """Ajoute une bille sur le caneva."""
@@ -142,7 +133,6 @@ class FenetresJeu:
 
         couleur = random.choice(list(self.dico_color.values())) # choix aléatoire parmi les couleurs proposées
         self.balle_canon = Balle(self.position_canon, self.rayon_billes, Vector2(0, -self.vitesse_balle), couleur, -1)
-        x,y  = self.balle_canon.centre
         id = self.canevas.create_oval(*self.balle_canon.coin_NW,*self.balle_canon.coin_SE, fill=self.balle_canon.couleur)
         self.balle_canon.id = id
     
@@ -169,7 +159,7 @@ class FenetresJeu:
         tps_update = temps-temp_update
         delai = int((self.delta-tps_update)*1000)
         if(delai <= 0):
-            if(tps_update > 1.5*self.delta): # on fixe une valeur au delà de laquelle on considère qu'on a une trop faible valeur d'images par seconde
+            if(tps_update > 2*self.delta): # on fixe une valeur au delà de laquelle on considère qu'on a une trop faible valeur d'images par seconde
                 print(f"LOW FPS ({int(1/tps_update)}/{self.FPS})")
             delai = 1
         self.racine.after(delai, self.update)
@@ -179,36 +169,42 @@ class FenetresJeu:
         """Simule la trajectoire de la balle et l'affiche pour guider le joueur."""
 
         if(self.balle is not None): return # on ne fait rien si la balle est lancée et est en mouvement
-
-        delta = self.position_souris - self.position_canon
+        delta: Vector2 = self.position_souris - self.position_canon
         angle = math.atan2(delta.y, delta.x)
         self.balle_canon.vitesse = Vector2(math.cos(angle), math.sin(angle)) * self.vitesse_balle
-        point = Balle(copy.copy(self.position_canon), self.balle_canon.rayon, copy.copy(self.balle_canon.vitesse), self.balle_canon.couleur, -1) # pointillés noirs qui simulent la trajectoire
+        balle = Balle(copy.copy(self.position_canon), self.balle_canon.rayon, copy.copy(self.balle_canon.vitesse), self.balle_canon.couleur, -1) # pointillés noirs qui simulent la trajectoire
+        
+        distance = self.offset_pointilles
+        self.pointilles_visibles = 0
+        dt = 1/(60*4)
+        while (not self.collision_bille(balle)) & (not self.deplacer_balle(balle, dt)) and self.pointilles_visibles < len(self.pointilles)-1: # tant qu'on a pas rencontré de bille et donc que la balle est en mouvement
+            distance += balle.vitesse.norme * dt
+            if(distance >= self.espacement_pointilles):
+                self.canevas.moveto(self.pointilles[self.pointilles_visibles], *balle.centre)
+                self.canevas.itemconfigure(self.pointilles[self.pointilles_visibles], fill=balle.couleur)
+                distance -= self.espacement_pointilles
+                self.pointilles_visibles+=1
 
-        interval = 30
-        step = 0 # permet de faire bouger les pointillés
-        p = 0
-        while (not self.collision_bille(point)) & (not self.deplacer_balle(point, 1/(60*4))) and p < len(self.pointilles)-1: # tant qu'on a pas rencontré de bille et donc que la balle est en mouvement
-            if(step%interval == self.offset_pointilles):
-                self.canevas.moveto(self.pointilles[p], *point.centre)
-                self.canevas.itemconfigure(self.pointilles[p], fill=point.couleur)
-                p+=1
-            step+=1
-        self.offset_pointilles = (self.offset_pointilles+2)%interval
-        point.vitesse *=-1
-        while (self.collision_bille(point) | self.deplacer_balle(point, 1/1000)): # tant qu'on a pas rencontré de bille et donc que la balle est en mouvement
+        self.offset_pointilles = (self.offset_pointilles-balle.vitesse.norme * self.delta/2)%self.espacement_pointilles
+        balle.vitesse *=-1
+        while (self.collision_bille(balle) | self.deplacer_balle(balle, 1/1000)): # tant qu'on a pas rencontré de bille et donc que la balle est en mouvement
             pass
-        for i in range(p, len(self.pointilles)-1):
+        for i in range(self.pointilles_visibles, len(self.pointilles)-1):
             self.canevas.itemconfigure(self.pointilles[i], fill="")
         
-        self.canevas.moveto(self.pointilles[-1], * (self.coordonees_to_position(self.position_to_coordonees(point.centre))-self.centre_bille))
-        self.canevas.itemconfigure(self.pointilles[-1], fill=point.couleur) # pointillés de la couleur de la balle qu'on lance
+        self.canevas.moveto(self.pointilles[-1], * (self.coordonees_to_position(self.position_to_coordonees(balle.centre))-self.centre_bille))
+        self.canevas.itemconfigure(self.pointilles[-1], outline=balle.couleur) # pointillés de la couleur de la balle qu'on lance
         
 
     def envoi_balle(self, event) : 
         """Envoie la balle dans la direction de la souris."""
 
         if(self.balle is not None): return
+        for i in range(0, self.pointilles_visibles):
+            self.canevas.itemconfigure(self.pointilles[i], fill="")
+        self.canevas.itemconfigure(self.pointilles[-1], outline="")
+        
+        
         self.balle = self.balle_canon
         
 
@@ -344,6 +340,7 @@ class FenetresJeu:
 
         coords = (position - self.centre_bille) / (2*self.rayon_billes)
         return Vector2Int(round(coords.x), round(coords.y)) # pour arrondir
+    
 
     def coordonees_to_position_square(self, coords: Vector2Int) -> Vector2:
         """Convertit des coordonnées dans la grille de billes en position sur le canevas."""
@@ -351,6 +348,7 @@ class FenetresJeu:
         position = coords*2*self.rayon_billes
         position += Vector2Int(self.rayon_billes, self.rayon_billes)
         return Vector2(position.x, position.y)
+    
     
     def position_to_coordonees(self, position: Vector2) -> Vector2Int:
         """Convertit la position du centre d'une bille du canevas en coordonnées dans la grille de billes."""
@@ -371,11 +369,13 @@ class FenetresJeu:
                 type_ligne = 1-type_ligne
         
         return Vector2Int(int(x), int(y))
+    
 
     def coordonees_to_position(self, coords: Vector2Int) -> Vector2:
         """Convertit des coordonnées dans la grille de bille en position sur le canevas"""
 
         return Vector2(self.rayon_billes + coords.x*self.rayon_billes*2 + (self.rayon_billes * ((coords.y-self.grande_ligne)%2)), self.rayon_billes + coords.y * self.hauteur)
+    
     
     def niveau_aleatoire(self, nb_color):
         """Génère une grille de jeu aléatoirement en respectant un nombre de couleurs de billes."""
