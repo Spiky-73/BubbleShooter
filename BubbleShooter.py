@@ -11,6 +11,7 @@ from fenetreJeu import FenetresJeu
 class FenetresMenu:
     
     def __init__(self):
+        """Constructeur pour initialiser la fenêtre du jeu"""
         self.racine = tk.Tk()
         self.racine.title("Bubble Shooter")
         self.racine.resizable(height = False, width = False)
@@ -19,7 +20,7 @@ class FenetresMenu:
 
 
     def _creer_widgets(self):
-        """Ajoute l'interface du menu."""
+        """Ajoute l'interface du menu en créant les widgets."""
         
         self.lb_nom = tk.Label(self.racine, text = "\nBUBBLE SHOOTER:", font='Helvetica 18 bold')
         self.lb_nom.pack(side=tk.TOP, fill='x')

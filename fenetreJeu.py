@@ -12,7 +12,7 @@ from utilitaire import Vector2, Vector2Int
 class FenetresJeu:
     
     def __init__(self, niveau: str):
-        """Initialise la fenêtre de jeu avec le niveau choisi."""
+        """Initialise la fenêtre de jeu avec le niveau choisi ainsi que tous les paramètres nécessaire au fonctionnement du programme."""
 
         self.niveau = niveau
         if self.niveau=='aleatoire':
@@ -206,6 +206,7 @@ class FenetresJeu:
 
 
     def test_eclate_billes(self, bille: Vector2Int, col: str):
+        """regarde si la bille touchée appartient à un groupe de même couleur d’au moins deux billes, dans ce cas, appelle eclate_bille """
         groupe = self.get_groupe(bille)
         if(len(groupe) >=3): # si la chaine de billes de même couleur ainsi formée est < 2
             for b in groupe:
@@ -214,6 +215,7 @@ class FenetresJeu:
 
     def _update_score(self):
         """Actualise le temps total de jeu et le score."""
+
         
 
     def deplacer_balle(self, balle: Balle, dt: float) -> bool:
@@ -263,7 +265,7 @@ class FenetresJeu:
         
 
     def get_groupe(self, bille: Vector2Int) -> list[Vector2Int]:
-        """ Renvoie les coordonnées des billes formant un groupe de couleur."""
+        """ Renvoie les coordonnées de la bille formant un groupe de couleur."""
         groupe = [bille]
         attente = [bille]
         color: str = self.canevas.itemcget(self.billes[bille.y][bille.x], "fill")
@@ -300,7 +302,7 @@ class FenetresJeu:
 
     
     def position_to_coordonees_square(self, position: Vector2) -> Vector2Int:
-        """Convertit la position du centre d'une bille du canevas en coordonnées dans la grille de bille."""
+        """Convertit la position du centre d'une bille du canevas en coordonnées dans la grille de billes."""
         coords = (position - Vector2(self.rayon_billes, self.rayon_billes)) / (2*self.rayon_billes)
         return Vector2Int(round(coords.x), round(coords.y))
 
@@ -311,7 +313,7 @@ class FenetresJeu:
         return Vector2(position.x, position.y)
     
     def position_to_coordonees(self, position: Vector2) -> Vector2Int:
-        """Convertit la position du centre d'une bille du canevas en coordonnées dans la grille de bille."""
+        """Convertit la position du centre d'une bille du canevas en coordonnées dans la grille de billes."""
         hauteur = (2*self.rayon_billes)*math.cos(math.pi/6)
         side = hauteur/(1+math.cos(math.pi/3))
         y, rem_y = divmod(position.y-self.rayon_billes+side/2, hauteur)
@@ -335,11 +337,12 @@ class FenetresJeu:
         return Vector2Int(int(x), int(y))
 
     def coordonees_to_position(self, coords: Vector2Int) -> Vector2:
-        """Convertit des coordonnées dans la grille de bille en position sur le canevas"""
+        """Convertit des coordonnées dans la grille de billes en position sur le canevas"""
         hauteur = (2*self.rayon_billes)*math.cos(math.pi/6)
         return Vector2(self.rayon_billes + coords.x*self.rayon_billes*2 + (self.rayon_billes if coords.y%2 != self.grande_ligne else 0), self.rayon_billes + coords.y * hauteur)
     
     def niveau_aleatoire(self, nb_color):
+        """génère une grille de jeu aléatoirement en repsectant un nombre de couleur de billes"""
         liste_ligne=[]
         import csv
         with open(self.fichier, encoding='utf-8') as fichiercsv:
@@ -349,4 +352,4 @@ class FenetresJeu:
                     nb=random.randint(0, len(self.dico_color ))
                     liste_ligne.append(nb)
                 writer.writerow(liste_ligne)
-        
+    
