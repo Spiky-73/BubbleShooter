@@ -110,8 +110,14 @@ class FenetresJeu:
                             self.index_couleurs.append(c)
                         self.place_bille(Vector2Int(i,j), gestionnaireDeTheme.billes[c])
 
+        self.balle_canon = None
         self.vitesse_balle = 750 # pixels/s
-        self.position_canon = Vector2(250,675) # là où on tire la balle, en bas au centre
+        self.reserve_balle: list[Balle] = []
+        self.reserve_affichee = 2
+        self.position_canon = Vector2(250,655) # là où on tire la balle, en bas au centre
+        self.position_reserve = self.position_canon + self.centre_bille
+        self.delta_reserve = Vector2(0, self.rayon_billes*1.5)
+        self.rayon_reserve = self.rayon_billes//2
     
     def place_bille(self, bille: Vector2Int, color: str):
         """Ajoute une bille sur le caneva."""
@@ -124,10 +130,30 @@ class FenetresJeu:
 
     def creer_balle_canon(self):
         """Crée la balle au niveau du canon à balles (en bas de la fenêtre) et choisi sa couleur aléatoirement."""
-        couleur = gestionnaireDeTheme.billes[random.choice(self.index_couleurs)] # choix aléatoire parmi les couleurs proposées
-        self.balle_canon = Balle(self.position_canon, self.rayon_billes, Vector2(0, -self.vitesse_balle), couleur, -1)
-        id = self.canevas.create_oval(*self.balle_canon.coin_NW,*self.balle_canon.coin_SE, fill=self.balle_canon.couleur)
-        self.balle_canon.id = id
+        if(self.balle_canon is not None): return
+        
+        if len(self.reserve_balle) <= 1 + self.reserve_affichee:
+            # ajoute des balles a la reserve, d'un rayon plus petit 
+            i_couleurs = self.index_couleurs.copy()
+            random.shuffle(i_couleurs)
+            for ic in i_couleurs:
+                balle = Balle(self.position_canon, self.rayon_reserve, Vector2(0, -self.vitesse_balle), gestionnaireDeTheme.billes[ic], -1)
+                id = self.canevas.create_oval(*balle.coin_NW,*balle.coin_SE, fill="", outline="")
+                balle.id = id
+                self.reserve_balle.append(balle)
+
+        # charge la balle dans le cannon et change sa taille
+        self.balle_canon = self.reserve_balle.pop(0)
+        self.balle_canon.rayon = self.rayon_billes
+        self.canevas.coords(self.balle_canon.id, *self.balle_canon.coin_NW,*self.balle_canon.coin_SE)
+        self.canevas.itemconfigure(self.balle_canon.id, fill=self.balle_canon.couleur, outline="black")
+
+        # bouge les balles du reservoir
+        for i, res in enumerate(self.reserve_balle):
+            self.canevas.moveto(res.id, *(self.position_reserve+self.delta_reserve*i))
+            hidden = {"fill": "", "outline":""} if i >= self.reserve_affichee else {"fill": res.couleur, "outline": "#000000"}
+            self.canevas.itemconfigure(res.id, **hidden)
+
     
 
     def _mouvement_souris(self, event: tk.Event):
@@ -204,6 +230,7 @@ class FenetresJeu:
         self.canevas.itemconfigure(self.pointilles[-1], outline="")
         
         self.balle = self.balle_canon
+        self.balle_canon = None
         
 
     def _update_balle(self):
