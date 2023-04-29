@@ -11,8 +11,14 @@ class Balle:
 
     @property
     def coin_NW(self) -> utilitaire.Vector2:
+        """ Définit le coin en haut à gauche de la balle."""
+
         return self.centre - utilitaire.Vector2(self.rayon, self.rayon)
+    
+
     @property
     def coin_SE(self) -> utilitaire.Vector2:
+        """Définit le coin en bas à droite de la balle."""
+
         return self.centre + utilitaire.Vector2(self.rayon, self.rayon)
     
