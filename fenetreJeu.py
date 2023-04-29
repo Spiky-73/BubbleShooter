@@ -1,5 +1,4 @@
 import copy
-import dataclasses
 import time # pour le chronomètre
 import tkinter as tk
 import random # pour générer les couleurs des billes
@@ -7,6 +6,7 @@ import csv # pour charger les niveaux
 import math
 
 from balle import Balle
+import gestionnaireDeTheme
 from utilitaire import Vector2, Vector2Int
 
 class FenetresJeu:
@@ -17,7 +17,6 @@ class FenetresJeu:
         self.niveau = niveau
         if self.niveau == 'aleatoire':
             self.niveau_aleatoire()
-        self.couleurs = ["red", "green", "blue", "yellow", "magenta", "cyan", "white", "purple"] # toutes les couleurs possibles
 
         self.rayon_billes = 10
         self.centre_bille = Vector2(self.rayon_billes, self.rayon_billes)
@@ -26,8 +25,7 @@ class FenetresJeu:
         self.racine.title(f"Niveau {niveau}")
         self.racine.resizable(height = False, width = False)
 
-        self.img_eclats = tk.PhotoImage(file="images/eclats.png").subsample(6) # animation quand les billes éclatent
-        self.img_nuages = tk.PhotoImage(file="images/fond.png").zoom(2) # fond
+        self.img_eclats = tk.PhotoImage(file="images/eclats.png").subsample(6)
 
         self.position_souris = Vector2(0,0)
         self.racine.bind("<Motion>", self._mouvement_souris)
@@ -48,12 +46,9 @@ class FenetresJeu:
         """Ajoute l'interface du jeu et ses données/statistiques : score, temps écoulé, nombre de billes éclatées..."""
 
         self.taille_canevas = Vector2Int(500, 700)
-        self.canevas = tk.Canvas(self.racine, bg="light blue", height=self.taille_canevas.y, width=self.taille_canevas.x, bd=0, highlightthickness=0)
+        self.canevas = tk.Canvas(self.racine, bg="light blue", height=self.taille_canevas.y, width=self.taille_canevas.x, bd=0, highlightthickness=0, background=gestionnaireDeTheme.fond)
         self.canevas.pack()
         self.canevas.bind('<Button-1>', self.envoi_balle)
-
-        self.canevas.create_image(-2, -60, image = self.img_nuages, anchor=tk.NW)
-
         self.timer = tk.Label(self.racine, text = "\nTemps écoulé ", font = 'Helvetica 11 bold') # affichage des statistiques
         self.timer.pack(side=tk.RIGHT, fill='x')
 
@@ -99,7 +94,8 @@ class FenetresJeu:
             l = [-1 for _ in range(x - y%2)]
             self.billes.append(l)
         
-        self.dico_color = {}
+        self.index_couleurs = []
+
         with open(self.fichier, encoding='utf-8') as csvfile: # lecture du fichier csv contenant le niveau choisi
             reader = csv.reader(csvfile,  delimiter=",")
             for j, ligne in enumerate(reader):
@@ -108,13 +104,11 @@ class FenetresJeu:
                     self.billes.insert(0, self.billes[1].copy())
                     self.grande_ligne = 1
                 for i, c in enumerate(ligne): 
-                    if c!="0": # guillemets car chaîne de caractères
-                        if c not in self.dico_color.keys() : 
-                            x = random.randint(0, len(self.couleurs)-1) # -1 car le len est inclusif, pour ne pas avoir une erreur out of bound
-                            self.dico_color[c] = self.couleurs[x]
-                            self.couleurs.pop(x) # pour n'avoir que les couleurs du niveau
-                        color = self.dico_color[c]
-                        self.place_bille(Vector2Int(i,j), color)
+                    if c != " ":
+                        c = int(c)
+                        if(not c in self.index_couleurs):
+                            self.index_couleurs.append(c)
+                        self.place_bille(Vector2Int(i,j), gestionnaireDeTheme.billes[c])
 
         self.vitesse_balle = 750 # pixels/s
         self.position_canon = Vector2(250,675) # là où on tire la balle, en bas au centre
@@ -130,8 +124,8 @@ class FenetresJeu:
 
     def creer_balle_canon(self):
         """Crée la balle au niveau du canon à balles (en bas de la fenêtre) et choisi sa couleur aléatoirement."""
-
-        couleur = random.choice(list(self.dico_color.values())) # choix aléatoire parmi les couleurs proposées
+        # TODO semi-rng a la tetris
+        couleur = gestionnaireDeTheme.billes[random.choice(self.index_couleurs)] # choix aléatoire parmi les couleurs proposées
         self.balle_canon = Balle(self.position_canon, self.rayon_billes, Vector2(0, -self.vitesse_balle), couleur, -1)
         id = self.canevas.create_oval(*self.balle_canon.coin_NW,*self.balle_canon.coin_SE, fill=self.balle_canon.couleur)
         self.balle_canon.id = id
@@ -386,7 +380,7 @@ class FenetresJeu:
             writer=csv.writer(fichiercsv)
             for i in range (19):
                 for j in range(25):
-                    nb=random.randint(0, len(self.dico_color ))
+                    nb=random.randint(0, len(self.index_couleurs))
                     liste_ligne.append(nb)
                 writer.writerow(liste_ligne)
         

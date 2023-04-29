@@ -4,7 +4,8 @@ Exécutez ce fichier pour jouer au jeu.
 
 import pathlib
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import StringVar, messagebox, OptionMenu
+import gestionnaireDeTheme
 
 from fenetreJeu import FenetresJeu
 
@@ -29,11 +30,18 @@ class FenetresMenu:
         self.btn_regles=tk.Button(self.racine, text='Règles du jeu')
         self.btn_regles.pack(side=tk.TOP, fill='x') # pour que le bouton prenne toute la longueur
         self.btn_regles.bind('<Button-1>', self.affiche_regles_jeu)
-        
+
+        self.lb_themes = tk.Label(self.racine, text = "Themes")
+        self.lb_themes.pack(side=tk.LEFT, anchor=tk.N) # Le place a gauche pour laisser la place au choix a droite
+        themes = list(gestionnaireDeTheme.iter_themes())
+        self.var_theme = StringVar(self.racine)
+        self.var_theme.set(themes[0]) # default value
+        self.om_theme = OptionMenu(self.racine, self.var_theme, *themes)
+        self.om_theme.pack(side=tk.TOP, anchor=tk.N)
         self.lb_niveau = tk.Label(self.racine, text = "\nChoisissez le niveau :", font='Helvetica 11 bold')
         self.lb_niveau.pack(side=tk.TOP, fill='x')
 
-        path = pathlib.Path("Niveaux")
+        path = pathlib.Path("niveaux")
         self.btns_niveaux: list[tk.Button] = []
         for niveau in path.glob('*.csv'): # lecture des fichiers csv contenant la disposition prédéfinie des billes (niveaux)
             _, nom = str(niveau).removesuffix(".csv").split("\\")
@@ -49,7 +57,7 @@ class FenetresMenu:
     
     def lancer_jeu(self, niveau: str):
         """Crée la fenêtre de jeu et ferme la fenêtre principale."""
-
+        gestionnaireDeTheme.charge_theme(self.var_theme.get())
         self.racine.destroy()
         jeu = FenetresJeu(niveau)
         jeu.racine.mainloop()
