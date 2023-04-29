@@ -49,7 +49,7 @@ class FenetresMenu:
     
     def lancer_jeu(self, niveau: str):
         """Crée la fenêtre de jeu et ferme la fenêtre principale."""
-        
+
         self.racine.destroy()
         jeu = FenetresJeu(niveau)
         jeu.racine.mainloop()
@@ -57,19 +57,22 @@ class FenetresMenu:
 
     def affiche_regles_jeu(self, event):
         """Ouvre une message box contenant les règles du jeu."""
+
         messagebox.showinfo("Règles du jeu ", 
                             "Objectif : \nExplose toutes les billes pour vider ton plateau ! \n "
                             
-                            "\n Pour y parvenir, il faut lancer la balle sur les billes du plateau de la même couleur. Si la balle touche un groupe de deux billes de la même couleur ou plus, alors ce groupe éclate."
+                            "\nPour y parvenir, il faut lancer la balle sur les billes du plateau de la même couleur. \nSi la balle touche un groupe de deux billes de la même couleur ou plus, alors ce groupe éclate. \nSi la bille qu'elle touche n'est pas de la même couleur, alors la balle que tu as lancé s'y accroche."
                             
                             "\n \nCommandes :\n"
-                            "À l’aide de ta souris, glisse sur l'endroit où tu veux envoyer la balle. Un tracé de ton lancement apparaitra et t’aidera beaucoup à viser ta cible. Lorsque tu es certain de ton plan de tir, il suffit de cliquer.\n"
+                            "À l’aide de ta souris, glisse sur l'endroit où tu veux envoyer la balle. Un tracé de ton lancer apparaitra et t’aidera beaucoup pour viser correctement et toucher ta cible. Lorsque tu es certain de ton plan de tir, il suffit de cliquer (clic gauche de ta souris).\n"
 
                             "Tu peux te servir des parois pour faire rebondir ta balle et parvenir aux endroits les plus inaccessibles.\n"
 
-                            "À chaque bille éclatée, tu gagnes des points. Si tu manques ton coup, ta bulle se collera aux autres et te rajoutera un handicap pour atteindre ton but.\n "
+                            "\nÀ chaque bille éclatée, tu gagnes des points. Si tu manques ton coup, ta bulle se collera aux autres et te rajoutera un handicap pour atteindre ton but.\n"
 
-                            "\nSi une des billes touche le bas du plateau, tu perds la partie. En revanche, si tu les élimines toutes, tu gagnes la partie :)\n")  
+                            "Pour augmenter ton score, essaye d'exploser des grands groupes de billes. Plus le groupe de billes qui explose est grand, plus tes points gagnés sont multipliés ! Ta rapidité est aussi prise en compte pour calculer ton score alors tente d'éliminer toutes les billes le plus rapidement possible !"
+
+                            "\n\nSi une des billes touche le bas du plateau, tu perds la partie. En revanche, si tu les élimines toutes, tu gagnes la partie.\nA toi de jouer ! :)\n")  
         
         
 if __name__ == "__main__":
