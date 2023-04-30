@@ -3,7 +3,7 @@ import json
 import pathlib
 import re
 
-from pyparsing import Iterator
+from typing import Iterator
 
 
 class GestionnaireDeTheme:

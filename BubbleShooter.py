@@ -6,6 +6,7 @@ import pathlib
 import tkinter as tk
 from tkinter import StringVar, messagebox, OptionMenu
 from gestionnaireDeTheme import theme
+import gestionnaireDeNiveaux
 
 from fenetreJeu import FenetresJeu
 
@@ -41,11 +42,9 @@ class FenetresMenu:
 
         self.lb_niveau = tk.Label(self.racine, text = "\nChoisissez le niveau :", font='Helvetica 11 bold')
         self.lb_niveau.pack(side=tk.TOP, fill='x')
-        path = pathlib.Path("niveaux")
         self.btns_niveaux: list[tk.Button] = []
-        for niveau in path.glob('*.csv'): # lecture des fichiers csv contenant la disposition prédéfinie des billes (niveaux)
-            _, nom = str(niveau).removesuffix(".csv").split("\\")
-            btn = tk.Button(self.racine, text=nom)
+        for niveau in gestionnaireDeNiveaux.iter_niveaux(): # lecture des fichiers csv contenant la disposition prédéfinie des billes (niveaux)
+            btn = tk.Button(self.racine, text=niveau)
             btn.pack(side=tk.BOTTOM, anchor=tk.N)
             btn.bind('<Button-1>', self._lancer_jeu)
             self.btns_niveaux.append(btn)

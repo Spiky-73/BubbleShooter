@@ -10,6 +10,7 @@ from grilleHexagonale import GrilleHexagonale
 
 from gestionnaireDeTheme import theme
 from utilitaire import Vector2, Vector2Int
+import gestionnaireDeNiveaux
 
 
 class FenetresJeu:
@@ -57,21 +58,7 @@ class FenetresJeu:
 
         self.fichier = f"niveaux/{self.niveau}.csv"
 
-        hauteur = (2*self.RAYON)*math.cos(math.pi/6)
-        self.grille = GrilleHexagonale(self.canevas, self.taille_canevas.x // (2*self.RAYON), int(self.taille_canevas.y/hauteur), self.RAYON)
-        
-        couleurs = []
-        with open(self.fichier, encoding='utf-8') as csvfile: # lecture du fichier csv contenant le niveau choisi
-            reader = csv.reader(csvfile,  delimiter=",")
-            for j, ligne in enumerate(reader):
-                if j == 0 and len(ligne) != self.grille.dimentions.x:
-                    self.grille.glissement()
-                for i, c in enumerate(ligne): 
-                    if c != " ":
-                        c = int(c)
-                        if(not c in couleurs):
-                            couleurs.append(c)
-                        self.grille.placer(Vector2Int(i,j), theme.billes[c])
+        self.grille, couleurs = gestionnaireDeNiveaux.charge_niveau(self.niveau, self.canevas, self.RAYON)
 
         self.balles: list[Balle] = []
         self.canon = Canon(self.canevas, Vector2(250,655), self.grille, self.RAYON, couleurs, self.balles)
