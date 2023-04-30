@@ -247,7 +247,7 @@ class FenetresJeu:
     def _update_score(self):
         """Actualise le temps total de jeu et le score. Calcule le score du joueur."""
         score = 0
-        if 
+        #if 
         
 
     def deplacer_balle(self, balle: Balle, dt: float) -> bool:
