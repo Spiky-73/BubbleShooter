@@ -5,7 +5,7 @@ Exécutez ce fichier pour jouer au jeu.
 import pathlib
 import tkinter as tk
 from tkinter import StringVar, messagebox, OptionMenu
-import gestionnaireDeTheme
+from gestionnaireDeTheme import theme
 
 from fenetreJeu import FenetresJeu
 
@@ -33,7 +33,7 @@ class FenetresMenu:
 
         self.lb_themes = tk.Label(self.racine, text = "Themes")
         self.lb_themes.pack(side=tk.LEFT, anchor=tk.N) # Le place a gauche pour laisser la place au choix a droite
-        themes = list(gestionnaireDeTheme.iter_themes())
+        themes = list(theme.iter_themes())
         self.var_theme = StringVar(self.racine)
         self.var_theme.set(themes[0]) # default value
         self.om_theme = OptionMenu(self.racine, self.var_theme, *themes)
@@ -57,7 +57,7 @@ class FenetresMenu:
     
     def lancer_jeu(self, niveau: str):
         """Crée la fenêtre de jeu et ferme la fenêtre principale."""
-        gestionnaireDeTheme.charge_theme(self.var_theme.get())
+        theme.charge_theme(self.var_theme.get())
         self.racine.destroy()
         jeu = FenetresJeu(niveau)
         jeu.racine.mainloop()
