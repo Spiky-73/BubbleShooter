@@ -31,8 +31,8 @@ class FenetresMenu:
         self.btn_regles.pack(side=tk.TOP, fill='x') # pour que le bouton prenne toute la longueur
         self.btn_regles.bind('<Button-1>', self.affiche_regles_jeu)
 
-        self.lb_themes = tk.Label(self.racine, text = "Themes")
-        self.lb_themes.pack(side=tk.LEFT, anchor=tk.N) # Le place a gauche pour laisser la place au choix a droite
+        self.lb_themes = tk.Label(self.racine, text = "Thème")
+        self.lb_themes.pack(side=tk.LEFT, anchor=tk.N) # le place a gauche pour laisser la place au choix à droite
         themes = list(gestionnaireDeTheme.iter_themes())
         self.var_theme = StringVar(self.racine)
         self.var_theme.set(themes[0]) # default value

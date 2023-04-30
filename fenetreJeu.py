@@ -133,7 +133,7 @@ class FenetresJeu:
         if(self.balle_canon is not None): return
         
         if len(self.reserve_balle) <= 1 + self.reserve_affichee:
-            # ajoute des balles a la reserve, d'un rayon plus petit 
+            # ajoute des balles a la réserve, d'un rayon plus petit 
             i_couleurs = self.index_couleurs.copy()
             random.shuffle(i_couleurs)
             for ic in i_couleurs:
@@ -142,13 +142,13 @@ class FenetresJeu:
                 balle.id = id
                 self.reserve_balle.append(balle)
 
-        # charge la balle dans le cannon et change sa taille
+        # charge la balle dans le canon et change sa taille
         self.balle_canon = self.reserve_balle.pop(0)
         self.balle_canon.rayon = self.rayon_billes
         self.canevas.coords(self.balle_canon.id, *self.balle_canon.coin_NW,*self.balle_canon.coin_SE)
         self.canevas.itemconfigure(self.balle_canon.id, fill=self.balle_canon.couleur, outline="black")
 
-        # bouge les balles du reservoir
+        # bouge les balles du réservoir
         for i, res in enumerate(self.reserve_balle):
             self.canevas.moveto(res.id, *(self.position_reserve+self.delta_reserve*i))
             hidden = {"fill": "", "outline":""} if i >= self.reserve_affichee else {"fill": res.couleur, "outline": "#000000"}
@@ -198,7 +198,7 @@ class FenetresJeu:
         dt = 1/(60*4)
         while (not self.collision_bille(balle)) & (not self.deplacer_balle(balle, dt)) and self.pointilles_visibles < len(self.pointilles)-1: # tant qu'on a pas rencontré de bille et donc que la balle est en mouvement
             distance += balle.vitesse.norme * dt
-            if(distance >= self.espacement_pointilles): # affiche et bouge un pointillé a la place de la balle
+            if(distance >= self.espacement_pointilles): # affiche et bouge un pointillé à la place de la balle
                 self.canevas.moveto(self.pointilles[self.pointilles_visibles], *balle.centre)
                 self.canevas.itemconfigure(self.pointilles[self.pointilles_visibles], fill=balle.couleur)
                 distance -= self.espacement_pointilles
@@ -209,13 +209,13 @@ class FenetresJeu:
 
 
         balle.vitesse *=-1
-        while (self.collision_bille(balle) | self.deplacer_balle(balle, 1/1000)): # tant que on se placerais sur une case occupée ou en dehors de la grille
+        while (self.collision_bille(balle) | self.deplacer_balle(balle, 1/1000)): # tant que on se placerait sur une case occupée ou en dehors de la grille
             pass
 
         for i in range(self.pointilles_visibles, len(self.pointilles)-1): # cache les pointillés inutilisés
             self.canevas.itemconfigure(self.pointilles[i], fill="")
         
-        # affiche la balle simullée dans sa position finale
+        # affiche la balle simulée dans sa position finale
         self.canevas.moveto(self.pointilles[-1], * (self.coordonees_to_position(self.position_to_coordonees(balle.centre))-self.centre_bille))
         self.canevas.itemconfigure(self.pointilles[-1], outline=balle.couleur) # pointillés de la couleur de la balle qu'on lance
         
@@ -224,7 +224,7 @@ class FenetresJeu:
         """Envoie la balle dans la direction de la souris."""
         if(self.balle is not None): return
 
-        # cache tout les pointillés
+        # cache tous les pointillés
         for i in range(0, self.pointilles_visibles):
             self.canevas.itemconfigure(self.pointilles[i], fill="")
         self.canevas.itemconfigure(self.pointilles[-1], outline="")
@@ -237,13 +237,13 @@ class FenetresJeu:
         """Contrôle le déplacement de la balle."""
         if(self.balle is None): return
 
-        # bouge la balle et detecte les collisions
+        # bouge la balle et détecte les collisions
         place = self.deplacer_balle(self.balle, self.delta) or self.collision_bille(self.balle)
         self.canevas.moveto(self.balle.id, *self.balle.coin_NW)
 
-        if(place): # si on touche quleque chose
+        if(place): # si on touche quelque chose
 
-            # recule la balle jusqu'à ce que elle se pose sur une case vide
+            # recule la balle jusqu'à ce qu'elle se pose sur une case vide
             self.balle.vitesse *=-1
             while True:
                 coords = self.position_to_coordonees(self.balle.centre)
@@ -270,7 +270,9 @@ class FenetresJeu:
 
 
     def _update_score(self):
-        """Actualise le temps total de jeu et le score."""
+        """Actualise le temps total de jeu et le score. Calcule le score du joueur."""
+        score = 0
+        if 
         
 
     def deplacer_balle(self, balle: Balle, dt: float) -> bool:
@@ -351,7 +353,7 @@ class FenetresJeu:
         id = self.billes[bille.y][bille.x]
         pos = self.coordonees_to_position(bille)
 
-        # surpime la bille
+        # supprime la bille
         self.billes[bille.y][bille.x] = -1
         self.canevas.delete(id)
 
