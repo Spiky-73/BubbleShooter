@@ -44,8 +44,12 @@ class Canon:
             self.pointilles.append(self.canevas.create_oval(-self.RAYON_POINTILLES, -self.RAYON_POINTILLES, self.RAYON_POINTILLES, self.RAYON_POINTILLES, fill="", outline=""))
         self.pointilles.append(self.canevas.create_oval(*(self.centre_balle*-1), *self.centre_balle, fill="", outline="", width=2))
 
-        self.charge_balle()
 
+    def reset(self):
+        self.reserve = []
+        if(self.balle is not None):
+            self.canevas.delete(self.balle.id)
+            self.balle = None
 
     def charge_balle(self):
         """Crée la balle au niveau du canon à balles (en bas de la fenêtre) et choisi sa couleur aléatoirement."""

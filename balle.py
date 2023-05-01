@@ -93,7 +93,7 @@ class Balle:
         #     self.deplacer(1/1000)
         while True: # tant que on se posserais sur une case occupée
             coords = self.grille.position_to_coordonees(self.position)
-            if(not(self.grille.coords_valides(coords) and self.grille[coords] != -1)):
+            if(self.grille.coords_valides(coords) and self.grille[coords] == -1):
                 break
             self.deplacer(1/1000)
         self.vitesse *=-1
