@@ -13,6 +13,7 @@ class GestionnaireDeTheme:
     """
     def __init__(self, nom:str="defaut") -> None:
         self.nom: str
+        self.text: tuple[str, str]
         self.fond: str
         self.billes: list[str]
 
@@ -37,6 +38,8 @@ class GestionnaireDeTheme:
             with open(path) as file: content = json.load(file)
 
             # conformité des champs
+            assert self.is_color(content["text0"]), "couleur de text0 invalide"
+            assert self.is_color(content["text1"]), "couleur de text1 invalide"
             assert self.is_color(content["fond"]), "couleur de fond invalide"
             assert type(content["billes"]) == list and len(content["billes"]) == 10, "champs billes invalide"
             for c in content["billes"]:
@@ -44,6 +47,7 @@ class GestionnaireDeTheme:
 
             # changement du theme
             self.nom = nom
+            self.text = (content["text0"], content["text1"])
             self.fond = content["fond"]
             self.billes = content["billes"]
 
@@ -69,6 +73,8 @@ class GestionnaireDeTheme:
         with open(f"{self._dossier}/{self._default}.json", "w") as file:
             json.dump("""
 {
+    "text0": "#000000",
+    "text1": "#ffffff",
     "fond": "#a2d1f7",
     "billes": [
         "#6f33a0",

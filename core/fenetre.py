@@ -47,6 +47,9 @@ class Fenetre:
         if(self.scipt != None):
             self.scipt.clear()
         self.scipt = script
+        self.grille.reset()
+        self.canon.reset()
+        self.canevas.configure(bg=theme.fond)
         self.scipt.init(*args)
         self.canon.charge_balle()
 

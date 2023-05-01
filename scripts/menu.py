@@ -14,17 +14,26 @@ class Menu(Script):
         lvl.charge_niveau("#menu", fenetre.grille, fenetre.canon)
         fenetre.grille.bind_tag("play", self.play)
         fenetre.grille.bind_tag("regles", self.regles)
-        # fenetre.grille.bind_tag("niveau", self.regles)
-        # fenetre.grille.bind_tag("theme", self.theme)
+        fenetre.grille.bind_tag("niveau", self.niveau_suiv)
+        fenetre.grille.bind_tag("theme", self.theme_suiv)
         self.ids: list[int] = []
+        self.niveau = "facile"
+        self.theme = theme.nom
 
         fenetre.grille.tag_bille(Vector2Int(13,7), "play")
         fenetre.grille.tag_bille(Vector2Int(3,15), "regles")
-        self.ids.append(fenetre.canevas.create_text(*(fenetre.grille.coordonees_to_position(Vector2Int(12,7))-Vector2(fenetre.RAYON, 0)), text="PLAY", fill="white", font="Helvetica 25"))
-        self.ids.append(fenetre.canevas.create_text(*fenetre.grille.coordonees_to_position(Vector2Int(3,15)), text="REGLES", fill="white", font="Helvetica 15"))
+        fenetre.grille.tag_bille(Vector2Int(20,15), "niveau")
+        fenetre.grille.tag_bille(Vector2Int(22,39), "theme")
+        self.ids.append(fenetre.canevas.create_text(*fenetre.grille.coordonees_to_position(Vector2Int(12,7)) - Vector2(fenetre.RAYON, 1), text="JOUER", fill=theme.text[0], font="Helvetica 25 bold"))
+        self.ids.append(fenetre.canevas.create_text(*fenetre.grille.coordonees_to_position(Vector2Int(3,15)), text="REGLES", fill=theme.text[1], font="Helvetica 15 bold"))
+        self.ids.append(fenetre.canevas.create_text(*(fenetre.grille.coordonees_to_position(Vector2Int(20,15))-Vector2(0, fenetre.RAYON)), text="NIVEAU", fill=theme.text[0], font="Helvetica 12 bold"))
+        self.ids.append(fenetre.canevas.create_text(*(fenetre.grille.coordonees_to_position(Vector2Int(20,15))+Vector2(0, fenetre.RAYON)), text=self.niveau.upper(), fill=theme.text[0], font="Helvetica 12 bold"))
+        self.ids.append(fenetre.canevas.create_text(*fenetre.grille.coordonees_to_position(Vector2Int(22,39)), text="THEME", fill=theme.text[1], font="Helvetica 10 bold"))
+        self.ids.append(fenetre.canevas.create_text(*(fenetre.grille.coordonees_to_position(Vector2Int(22,40))+Vector2(fenetre.RAYON, 0)), text=theme.nom.upper(), fill=theme.text[1], font="Helvetica 10 bold"))
         fenetre.grille.gelee = True
 
     
+
     def clear(self) -> None:
         for id in self.ids:
             fenetre.canevas.delete(id)
@@ -34,7 +43,19 @@ class Menu(Script):
         return super().update(delta)
 
     def play(self, bille):
-        fenetre.set_scipt(Jeu(), "facile")
+        fenetre.set_scipt(Jeu(), self.niveau)
+    
+    def niveau_suiv(self, bille):
+        niveaux = list(lvl.iter_niveaux())
+        self.niveau = niveaux[(niveaux.index(self.niveau)+1)%len(niveaux)]
+        fenetre.canevas.itemconfigure(self.ids[3], text = self.niveau.upper())
+    
+    def theme_suiv(self, bille):
+        themes = list(theme.iter_themes())
+        self.theme = themes[(themes.index(self.theme)+1)%len(themes)]
+        fenetre.canevas.itemconfigure(self.ids[5], text = self.theme.upper())
+        theme.charge_theme(self.theme)
+        fenetre.set_scipt(Menu())
 
     def regles(self, bille):
         """Ouvre une message box contenant les règles du jeu."""
