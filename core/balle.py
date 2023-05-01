@@ -1,5 +1,5 @@
 import tkinter
-from grilleHexagonale import GrilleHexagonale
+from .grilleHexagonale import GrilleHexagonale
 from utilitaire import Vector2, Vector2Int
 
 class Balle:

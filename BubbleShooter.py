@@ -1,9 +1,8 @@
 """
 Exécutez ce fichier pour jouer au jeu.
 """
-from fenetre import fenetre
-from menu import Menu
-from jeu import Jeu
+from core.fenetre import fenetre
+from scripts.menu import Menu
 
 # import pathlib
 # import tkinter as tk
@@ -86,5 +85,5 @@ from jeu import Jeu
 
         
 if __name__ == "__main__":
-    fenetre.start(Jeu(), "facile")
+    fenetre.start(Menu())
     # app.racine.mainloop()

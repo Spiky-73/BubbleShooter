@@ -1,7 +1,8 @@
 import csv
-from script import Script
-from fenetre import fenetre
-from gestionnaireDeTheme import theme
+from core.script import Script
+from core.fenetre import fenetre
+import core.gestionnaireDeNiveaux as lvl
+from core.gestionnaireDeTheme import theme
 from utilitaire import Vector2Int
 
 class Jeu(Script):
@@ -13,19 +14,7 @@ class Jeu(Script):
         # if self.niveau == 'aleatoire':
         #     self.niveau_aleatoire()
 
-        couleurs = []
-        with open(path, encoding='utf-8') as csvfile: # lecture du fichier csv contenant le niveau choisi
-            reader = csv.reader(csvfile,  delimiter=",")
-            for j, ligne in enumerate(reader):
-                if j == 0 and len(ligne) != fenetre.grille.dimensions.x:
-                    fenetre.grille.glissement()
-                for i, c in enumerate(ligne): 
-                    if c != " ":
-                        c = int(c)
-                        if(not c in couleurs):
-                            couleurs.append(c)
-                        fenetre.grille.place(Vector2Int(i,j), theme.billes[c])
-        fenetre.canon.couleurs = couleurs
+        lvl.charge_niveau(niveau, fenetre.grille, fenetre.canon)
         
 
     # def _creer_widgets(self):

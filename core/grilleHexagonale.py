@@ -1,7 +1,7 @@
 import math
 import random
 import tkinter
-from typing import Literal
+from typing import Callable, Literal
 from utilitaire import Vector2, Vector2Int
 
 class GrilleHexagonale:
@@ -20,6 +20,8 @@ class GrilleHexagonale:
 
     def __init__(self, canevas: tkinter.Canvas, dimensions: Vector2Int, rayon: int, grande_ligne: Literal[0,1] = 0):
 
+        self.gelee = False
+
         self.canevas = canevas
         self.dimensions = dimensions
         self.rayon = rayon
@@ -27,6 +29,8 @@ class GrilleHexagonale:
         self.centre = Vector2(self.rayon, self.rayon)
 
         self.grande_ligne = grande_ligne
+
+        self._binds: dict[str, Callable[[Vector2Int], None]] = {}
 
 
         self._grille: list[list[int]] = []
@@ -37,17 +41,26 @@ class GrilleHexagonale:
         self.img_eclats = tkinter.PhotoImage(file="images/eclats.png").subsample(6)
 
 
+    def bind_tag(self, nom: str, action: Callable[[Vector2Int], None]) -> None:
+        self._binds[nom] = action
+
+    def tag_bille(self, bille: Vector2Int, tag: str):
+        self.canevas.addtag_withtag(tag, self[bille])
+
+
     def __getitem__(self, coords: Vector2Int) -> int:
         """Renvoie l'id de la bille dans la case correspondante"""
         return self._grille[coords.y][coords.x]
 
     def place(self, bille: Vector2Int, color: str):
         """Ajoute une bille sur le caneva."""
-
         y = max(0, min(bille.y, len(self._grille)-1))
         x = max(0, min(bille.x, len(self._grille[y])))
         position = self.coordonees_to_position(bille) # appel de coordonees_to_position pour la conversion
         self._grille[y][x] = self.canevas.create_oval(*(position-self.centre), *(position+self.centre), fill=color, tags="Bille")
+        if(self.gelee):
+            self.canevas.addtag_withtag("temp", self._grille[y][x])
+
     
     def enleve(self, bille: Vector2Int):
         """Surprime une bille sur le caneva."""
@@ -56,17 +69,25 @@ class GrilleHexagonale:
 
     def eclate(self, bille: Vector2Int):
         """Eclate une bille."""
-
-        self.enleve(bille)
+            
         pos = self.coordonees_to_position(bille)
-
         anim = self.canevas.create_image(pos.x,pos.y, image = self.img_eclats, anchor=tkinter.CENTER)
+
         
-        # supression de l'image
-        self.canevas.after(random.randint(100, 500), self._eclate_bille_fin, anim)
+        if(not self.gelee or "temp" in self.canevas.gettags(self[bille])):
+            self.enleve(bille)
+            # supression de l'image
+            self.canevas.after(random.randint(100, 500), self._eclate_bille_fin, anim)
+        else:
+            id = self[bille]
+            color: str = self.canevas.itemcget(id, "fill")
+            self.canevas.itemconfigure(id, fill="", outline="")
+            self.canevas.after(random.randint(100, 500), self._eclate_bille_regrowth, anim, id, color)
 
-
+        
     def reset(self):
+        self.gelee = False
+        self._binds = {}
         for y in range(self.dimensions.y):
             cl = (y-self.grande_ligne)%2
             for x in range(self.dimensions.x-cl):
@@ -82,13 +103,14 @@ class GrilleHexagonale:
         self.canevas.move("Bille", 0, -self.hauteur)
 
 
-    def get_groupe(self, bille: Vector2Int) -> list[Vector2Int]:
+    def get_groupe(self, bille: Vector2Int) -> tuple[list[Vector2Int], dict[str, Vector2Int]]:
         """ Renvoie les coordonnées des billes formant un groupe de couleur."""
 
         # initialise un BFS
-        groupe = [bille]
+        tags: dict[str, Vector2Int] = {}
+        groupe: list[Vector2Int] = []
         attente = [bille]
-        color: str = self.canevas.itemcget(self._grille[bille.y][bille.x], "fill")
+        color: str = self.canevas.itemcget(self[bille], "fill")
 
         while len(attente) != 0: # BFS avec une condition
             pos = attente.pop()
@@ -98,28 +120,31 @@ class GrilleHexagonale:
                 if self.coords_valides(n_pos) and not n_pos in groupe:
                     id = self[n_pos]
                     if(id != -1 and self.canevas.itemcget(id, "fill") == color):
+                        for tag in self.canevas.gettags(id): tags[tag] = n_pos
                         attente.append(n_pos)
                         groupe.append(n_pos)
-            
-        return groupe
+
+        
+        del tags["Bille"]
+        return groupe, tags
        
     def test_eclate_groupe(self, bille: Vector2Int):
         """Teste si la bille touchée appartient à un groupe d'au moins 2 billes de même couleur que la balle lancée."""
 
-        groupe = self.get_groupe(bille)
-        if(len(groupe) < 3): # si la chaine de billes de même couleur ainsi formée est < 2
+        groupe, tags = self.get_groupe(bille)
+        if(len(groupe)<3 and len(tags) == 0): # si la chaine de billes de même couleur ainsi formée est < 2
             return 
         
-        billes_a_tester: set[Vector2Int] = set()
-        for b in groupe:
-            voisins = self.VOISINS[b.y%2-self.grande_ligne]
-            self.eclate(b) # on éclate car le chaîne ainsi formée comporte au minimum 3 billes de la même couleur
-            for v in voisins:
-                p = b+v
-                if(not p in billes_a_tester):
-                    billes_a_tester.add(p)
+        if(len(groupe)>=3):
+            for b in groupe:
+                self.eclate(b) # on éclate car le chaîne ainsi formée comporte au minimum 3 billes de la même couleur
         
-        self.eclate_billes_detaches()
+        if(not self.gelee):
+            self.eclate_billes_detaches()
+
+        for tag, b in tags.items():
+            if(tag in self._binds):
+                self._binds[tag](b)
 
 
     def eclate_billes_detaches(self):
@@ -189,3 +214,8 @@ class GrilleHexagonale:
     def _eclate_bille_fin(self, anim_id: int):
         """Fin de l'animation."""
         self.canevas.delete(anim_id)
+    
+    def _eclate_bille_regrowth(self, anim_id: int, id_bille: int, color: str):
+        """Fin de l'animation."""
+        self.canevas.delete(anim_id)
+        self.canevas.itemconfigure(id_bille, fill=color, outline="black")

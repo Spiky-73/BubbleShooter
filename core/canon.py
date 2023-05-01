@@ -4,9 +4,9 @@ import random
 import tkinter
 from utilitaire import Vector2
 
-from balle import Balle
-from grilleHexagonale import GrilleHexagonale
-from gestionnaireDeTheme import theme
+from .balle import Balle
+from .grilleHexagonale import GrilleHexagonale
+from .gestionnaireDeTheme import theme
 
 class Canon:
 
@@ -43,7 +43,6 @@ class Canon:
         for _ in range(50):
             self.pointilles.append(self.canevas.create_oval(-self.RAYON_POINTILLES, -self.RAYON_POINTILLES, self.RAYON_POINTILLES, self.RAYON_POINTILLES, fill="", outline=""))
         self.pointilles.append(self.canevas.create_oval(*(self.centre_balle*-1), *self.centre_balle, fill="", outline="", width=2))
-
 
     def reset(self):
         self.reserve = []

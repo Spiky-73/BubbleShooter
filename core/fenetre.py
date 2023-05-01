@@ -2,13 +2,13 @@ import time # pour le chronomètre
 import tkinter as tk
 import math
 
-from balle import Balle
-from canon import Canon
-from grilleHexagonale import GrilleHexagonale
-from script import Script
+from .balle import Balle
+from .canon import Canon
+from .grilleHexagonale import GrilleHexagonale
+from .script import Script
 
 
-from gestionnaireDeTheme import theme
+from .gestionnaireDeTheme import theme
 from utilitaire import Vector2, Vector2Int
 
 
@@ -37,7 +37,6 @@ class Fenetre:
 
         self.scipt: Script = None
 
-
     def start(self, script: Script, *args):
         self.set_scipt(script, *args)
         self.update()
@@ -45,9 +44,9 @@ class Fenetre:
 
 
     def set_scipt(self, script: Script, *args):
+        if(self.scipt != None):
+            self.scipt.clear()
         self.scipt = script
-        self.grille.reset()
-        self.canon.reset()
         self.scipt.init(*args)
         self.canon.charge_balle()
 

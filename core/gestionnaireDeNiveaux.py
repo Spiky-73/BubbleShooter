@@ -1,30 +1,27 @@
-from copy import deepcopy
 import csv
-import json
-import math
 import pathlib
-import tkinter
 
 from typing import Iterator
+from core.canon import Canon
 
-from grilleHexagonale import GrilleHexagonale
+from .grilleHexagonale import GrilleHexagonale
 from utilitaire import Vector2Int
-from gestionnaireDeTheme import theme
+from .gestionnaireDeTheme import theme
 
 
 _dossier = "niveaux"
 
-def charge_niveau(nom: str, canevas: tkinter.Canvas, rayon: int) -> tuple[GrilleHexagonale, list[int]]:
+def charge_niveau(nom: str, grille: GrilleHexagonale, canon: Canon) -> None:
     """Charge un niveau"""   
-    path = f"{_dossier}/{nom}.csv"
-    hauteur = (2*rayon)*math.cos(math.pi/6)
-    grille = GrilleHexagonale(canevas, int(canevas["width"]) // (2*rayon), int(int(canevas["height"])/hauteur), rayon)
+    path = f"scripts/{nom[1:]}.csv" if(nom.startswith("#")) else f"{_dossier}/{nom}.csv"
+    grille.reset()
+    canon.reset()
     
     couleurs = []
     with open(path, encoding='utf-8') as csvfile: # lecture du fichier csv contenant le niveau choisi
         reader = csv.reader(csvfile,  delimiter=",")
         for j, ligne in enumerate(reader):
-            if j == 0 and len(ligne) != grille.dimentions.x:
+            if j == 0 and len(ligne) != grille.dimensions.x:
                 grille.glissement()
             for i, c in enumerate(ligne): 
                 if c != " ":
@@ -33,7 +30,7 @@ def charge_niveau(nom: str, canevas: tkinter.Canvas, rayon: int) -> tuple[Grille
                         couleurs.append(c)
                     grille.place(Vector2Int(i,j), theme.billes[c])
     
-    return grille, couleurs
+    canon.couleurs = couleurs
 
 
 def iter_niveaux() -> Iterator[str]:
