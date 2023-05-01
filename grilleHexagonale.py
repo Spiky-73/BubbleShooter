@@ -39,7 +39,9 @@ class GrilleHexagonale:
 
     def __getitem__(self, coords: Vector2Int) -> int:
         """Renvoie l'id de la bille dans la case correspondante"""
+
         return self._grille[coords.y][coords.x]
+    
 
     def place(self, bille: Vector2Int, color: str):
         """Ajoute une bille sur le caneva."""
@@ -115,9 +117,9 @@ class GrilleHexagonale:
 
 
     def eclate_billes_detaches(self):
-        """Eclates les billes qui ne sont pas rattachées au haut de la grille"""
+        """Eclate les billes qui ne sont pas rattachées au haut de la grille (si le groupe auquel elles étaient accrochées explose, pour ne pas qu'elles restent dans le vide)."""
 
-        # stoquage des données (-1: non exploré, )
+        # stockage des données (-1: non exploré, )
         connectees: list[list[bool]] = []
         attente: list[Vector2Int] = []
 
@@ -128,7 +130,7 @@ class GrilleHexagonale:
             if(self[Vector2Int(x, 0)] != -1): attente.append(Vector2Int(x, 0))
             connectees[0][x] = True
 
-        # BFS a partir de toutes les billes pouvant servir de connection
+        # BFS à partir de toutes les billes pouvant servir de connection
 
         while len(attente) != 0: # BFS avec une condition
             pos = attente.pop()
@@ -173,6 +175,7 @@ class GrilleHexagonale:
     
     def coordonees_to_position(self, coords: Vector2Int) -> Vector2:
         """Convertit des coordonnées dans la grille de bille en position sur le canevas"""
+        
         x = self.rayon + coords.x*self.rayon*2 + (self.rayon * ((coords.y-self.grande_ligne)%2))
         y = self.rayon + coords.y * self.hauteur
         return Vector2(x, y)

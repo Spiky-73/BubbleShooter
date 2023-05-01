@@ -89,10 +89,38 @@ class FenetresJeu:
         self.racine.after(delai, self.update)
 
 
-    def _update_score(self):
-        """Actualise le temps total de jeu et le score. Calcule le score du joueur."""
-        score = 0
-        #if 
+#    def _update_score(self):
+#        """Actualise le temps total de jeu et le score. Calcule le score du joueur."""
+#
+#        # à appeler à chaque lancer
+#        score = 0
+#        if eclate == True : # rajouter un booleen dans la fonction test_eclate_groupe : on incrémente le score à partir du moment où le lancer éclate des billes
+#            groupe = self.get_groupe(bille) + self.eclate_billes_detaches() # le nombre de billes éclatées = celles du groupe éclaté + celles qui étaient en dessous et qui tombent aussi car non connectées
+#            if groupe == 3 : # nombre minimal pour éclater
+#                score += 3
+#            elif groupe > 3 and < 10 :
+#                score += groupe * 1.2 # bonus : plus on éclate un grand groupe, plus on obtient de points : 1 point par bille éclatée + un coefficient bonus car grande chaîne formée
+#            elif groupe >= 10 and < 15 :
+#                score += groupe * 1.4
+#            elif groupe >= 15 and < 20 :
+#                score += groupe * 1.6
+#            else :
+#                score = score + groupe*2
+#        
+#        if fin_de_partie == True : # booléen dans test_fin_de_partie
+#            if chrono > 180 : # à modifier quand on aura fait la fonction du chrono, si le joueur met plus de 3 minutes pour terminer le niveau (chrono affiché en fin de partie)
+#                score = score # pas de bonus de rapidité
+#            elif chrono > 120 and chrono <= 180 : # s'il met entre 2 et 3 minutes
+#                score = score * 1.1 # léger bonus de rapidité
+#            elif chrono >= 40 and chrono <= 120 :
+#                score = score * 1.2
+#            else : 
+#                score = score * 1.5
+#            
+#        score = score * 10 # pour éviter d'avoir des tout petits scores
+#        return score
+#
+#        # est-ce qu'on affiche le score à chaque lancer en bas ?
 
 
     def test_fin_de_partie(self) -> bool: 
