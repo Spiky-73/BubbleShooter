@@ -41,7 +41,7 @@ class GrilleHexagonale:
         """Renvoie l'id de la bille dans la case correspondante"""
         return self._grille[coords.y][coords.x]
 
-    def placer(self, bille: Vector2Int, color: str):
+    def place(self, bille: Vector2Int, color: str):
         """Ajoute une bille sur le caneva."""
 
         y = max(0, min(bille.y, len(self._grille)-1))
@@ -49,15 +49,15 @@ class GrilleHexagonale:
         position = self.coordonees_to_position(bille) # appel de coordonees_to_position pour la conversion
         self._grille[y][x] = self.canevas.create_oval(*(position-self.centre), *(position+self.centre), fill=color, tags="Bille")
     
-    def enlever(self, bille: Vector2Int):
+    def enleve(self, bille: Vector2Int):
         """Surprime une bille sur le caneva."""
         self.canevas.delete(self._grille[bille.y][bille.x])
         self._grille[bille.y][bille.x] = -1
 
-    def eclater(self, bille: Vector2Int):
+    def eclate(self, bille: Vector2Int):
         """Eclate une bille."""
 
-        self.enlever(bille)
+        self.enleve(bille)
         pos = self.coordonees_to_position(bille)
 
         anim = self.canevas.create_image(pos.x,pos.y, image = self.img_eclats, anchor=tkinter.CENTER)
@@ -82,13 +82,13 @@ class GrilleHexagonale:
         attente = [bille]
         color: str = self.canevas.itemcget(self._grille[bille.y][bille.x], "fill")
 
-        while len(attente) != 0: # BFSD avec une condition
+        while len(attente) != 0: # BFS avec une condition
             pos = attente.pop()
             voisins = self.VOISINS[pos.y%2-self.grande_ligne]
             for delta in voisins:
                 n_pos = pos + delta
-                if 0 <= n_pos.y and n_pos.y < len(self._grille) and 0 <= n_pos.x and n_pos.x < len(self._grille[n_pos.y]) and not n_pos in groupe:
-                    id = self._grille[n_pos.y][n_pos.x]
+                if self.coords_valides(n_pos) and not n_pos in groupe:
+                    id = self[n_pos]
                     if(id != -1 and self.canevas.itemcget(id, "fill") == color):
                         attente.append(n_pos)
                         groupe.append(n_pos)
@@ -99,9 +99,52 @@ class GrilleHexagonale:
         """Teste si la bille touchée appartient à un groupe d'au moins 2 billes de même couleur que la balle lancée."""
 
         groupe = self.get_groupe(bille)
-        if(len(groupe) >=3): # si la chaine de billes de même couleur ainsi formée est < 2
-            for b in groupe:
-                self.eclater(b) # on éclate car le chaîne ainsi formée comporte au minimum 3 billes de la même couleur
+        if(len(groupe) < 3): # si la chaine de billes de même couleur ainsi formée est < 2
+            return 
+        
+        billes_a_tester: set[Vector2Int] = set()
+        for b in groupe:
+            voisins = self.VOISINS[b.y%2-self.grande_ligne]
+            self.eclate(b) # on éclate car le chaîne ainsi formée comporte au minimum 3 billes de la même couleur
+            for v in voisins:
+                p = b+v
+                if(not p in billes_a_tester):
+                    billes_a_tester.add(p)
+        
+        self.eclate_billes_detaches()
+
+
+    def eclate_billes_detaches(self):
+        """Eclates les billes qui ne sont pas rattachées au haut de la grille"""
+
+        # stoquage des données (-1: non exploré, )
+        connectees: list[list[bool]] = []
+        attente: list[Vector2Int] = []
+
+        for y in range(0, self.dimentions.y):
+            connectees.append([False for _ in range(self.dimentions.x-(y-self.grande_ligne)%2)])
+
+        for x in range(self.dimentions.x-self.grande_ligne):
+            if(self[Vector2Int(x, 0)] != -1): attente.append(Vector2Int(x, 0))
+            connectees[0][x] = True
+
+        # BFS a partir de toutes les billes pouvant servir de connection
+
+        while len(attente) != 0: # BFS avec une condition
+            pos = attente.pop()
+            voisins = self.VOISINS[pos.y%2-self.grande_ligne]
+            for delta in voisins:
+                n_pos = pos + delta
+                if self.coords_valides(n_pos) and not connectees[n_pos.y][n_pos.x]:
+                    connectees[n_pos.y][n_pos.x] = True
+                    if(self[n_pos] != -1): attente.append(n_pos)
+
+        # suppresion des billes non connectés
+        for y in range(self.dimentions.y):
+            cl = (y-self.grande_ligne)%2
+            for x in range(self.dimentions.x-cl):
+                if(self._grille[y][x] != -1 and not connectees[y][x]): self.eclate(Vector2Int(x,y))
+
 
 
     def coords_valides(self, coords: Vector2Int):

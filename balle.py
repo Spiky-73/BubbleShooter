@@ -40,7 +40,7 @@ class Balle:
 
         self.canevas.delete(self.id)
         coords = self.grille.position_to_coordonees(self.position)
-        self.grille.placer(coords, self.couleur)
+        self.grille.place(coords, self.couleur)
         self.grille.test_eclate_groupe(coords)
 
         self.balles.remove(self)
