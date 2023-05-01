@@ -19,6 +19,7 @@ class Canon:
     def __init__(self, canevas: tkinter.Canvas, position: Vector2, grille: GrilleHexagonale, rayon: int, couleurs: list[int], balles: list[Balle]) -> None:
         self.canevas = canevas
         self.canevas.bind('<Button-1>', self.envoi_balle)
+        self.canevas.bind('<Button-3>', self.discard_balle)
         self.position = position # là où on tire la balle, en bas au centre
         self.grille = grille
         self.rayon = rayon
@@ -87,6 +88,13 @@ class Canon:
         self.canevas.itemconfigure(self.pointilles[-1], outline="")
         self.balles_mobiles.append(self.balle)
         self.balle = None
+    
+    def discard_balle(self, event) : 
+        """Ignore la balle actuelle et charge la suivante."""
+        if(self.balle is None): return
+        self.canevas.delete(self.balle.id)
+        self.balle = None
+        self.charge_balle()
     
     
     def update(self, delta: float):
