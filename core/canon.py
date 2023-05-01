@@ -46,6 +46,8 @@ class Canon:
         self.pointilles.append(self.canevas.create_oval(*(self.centre_balle*-1), *self.centre_balle, fill="", outline="", width=2))
 
     def reset(self):
+        for id, _ in self.reserve: self.canevas.delete(id)
+
         self.reserve = []
         if(self.balle is not None):
             self.canevas.delete(self.balle.id)
