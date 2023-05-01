@@ -1,5 +1,3 @@
-import copy
-import dataclasses
 import time # pour le chronomètre
 import tkinter as tk
 import random # pour générer les couleurs des billes
@@ -7,48 +5,35 @@ import csv # pour charger les niveaux
 import math
 
 from balle import Balle
+from canon import Canon
+from grilleHexagonale import GrilleHexagonale
+
+from gestionnaireDeTheme import theme
 from utilitaire import Vector2, Vector2Int
+import gestionnaireDeNiveaux
+
 
 class FenetresJeu:
+
+    RAYON = 10
     
     def __init__(self, niveau: str):
-        """Initialise la fenêtre de jeu avec le niveau choisi ainsi que tous les paramètres nécessaire au fonctionnement du programme."""
+        """ Initialise la fenêtre de jeu avec le niveau choisi ainsi que tous les paramètres nécessaire au fonctionnement du programme. """
 
         self.niveau = niveau
-        if self.niveau=='aleatoire':
+        if self.niveau == 'aleatoire':
             self.niveau_aleatoire()
-        self.couleurs = ["red", "green", "blue", "yellow", "magenta", "cyan", "white", "purple"]
-
-        self.rayon_billes = 10
-        self.centre_bille = Vector2(self.rayon_billes, self.rayon_billes)
-
 
         self.racine = tk.Tk()        
         self.racine.title(f"Niveau {niveau}")
         self.racine.resizable(height = False, width = False)
 
-        self.img_eclats = tk.PhotoImage(file="images/eclats.png").subsample(6)
-        self.img_nuages = tk.PhotoImage(file="images/fond.png").zoom(2)
-
-        self.position_souris = Vector2(0,0)
-        self.racine.bind("<Motion>", self._mouvement_souris)
-
         self._creer_widgets()
 
         self._init_niveau()
 
-        # debug de la grille hexagonale 
-        # cols = [["red", "orange", "yellow"], ["blue", "cyan", "green"]]
-
-        # for x in range(0,150):
-        #     for y in range(0,150):
-        #         coords = self.position_to_coordonees(Vector2(x,y))
-        #         self.canevas.create_rectangle(x,y, x, y, fill=cols[coords.y%2][coords.x%3], outline="")
-        self.balle: Balle = None
-        self.creer_balle_canon()
-
         self.FPS = 60
-        self.delta = 1/self.FPS # floor division, pour s'actualiser toutes les 1000/60 msec
+        self.delta = 1/self.FPS
         self.update()
 
 
@@ -56,18 +41,10 @@ class FenetresJeu:
         """Ajoute l'interface du jeu et ses données/statistiques : score, temps écoulé, nombre de billes éclatées..."""
 
         self.taille_canevas = Vector2Int(500, 700)
-        self.canevas = tk.Canvas(self.racine, bg="light blue", height=self.taille_canevas.y, width=self.taille_canevas.x, bd=0, highlightthickness=0)
+        self.canevas = tk.Canvas(self.racine, bg="light blue", height=self.taille_canevas.y, width=self.taille_canevas.x, bd=0, highlightthickness=0, background=theme.fond)
         self.canevas.pack()
-        self.canevas.bind('<Button-1>', self.envoi_balle)
-
-
-        self.canevas.create_image(-2, -60, image = self.img_nuages, anchor=tk.NW)
-
-        self.timer = tk.Label(self.racine, text = "\nTemps écoulé ", font = 'Helvetica 11 bold')
+        self.timer = tk.Label(self.racine, text = "\nTemps écoulé ", font = 'Helvetica 11 bold') # affichage des statistiques
         self.timer.pack(side=tk.RIGHT, fill='x')
-        
-        compteur = math.inf # pour le chronomètre 
-        running = False
 
         self.nbr_billes_eclatees = tk.Label(self.racine, text = "\nNombre de billes éclatées ", font = 'Helvetica 11 bold')
         self.nbr_billes_eclatees.pack(side=tk.RIGHT, fill='x')
@@ -75,81 +52,16 @@ class FenetresJeu:
         self.score = tk.Label(self.racine, text = "\nScore ", font = 'Helvetica 11 bold')
         self.score.pack(side=tk.RIGHT, fill='x')
 
-        self.rayon_pointilles = 2
-        self.pointilles: list[int] = []
-        for _ in range(50):
-            self.pointilles.append(self.canevas.create_oval(-self.rayon_pointilles, -self.rayon_pointilles, self.rayon_pointilles, self.rayon_pointilles, fill="", outline=""))
-        self.pointilles.append(self.canevas.create_oval(*(self.centre_bille*-1), *(self.centre_bille), fill=""))
-
 
     def _init_niveau(self):
         """Lecture et chargement du niveau."""
 
         self.fichier = f"niveaux/{self.niveau}.csv"
 
-        self.grande_ligne = 0
-        self.voisins_gl = [
-                    Vector2Int(-1,-1), Vector2Int(0,-1),
-            Vector2Int(-1,0),  Vector2Int(0,0),  Vector2Int(1,0),
-                    Vector2Int(-1,1),  Vector2Int(0,1)
-        ]
-        self.voisins_pl = [
-                    Vector2Int(0,-1), Vector2Int(1,-1), 
-            Vector2Int(-1,0),  Vector2Int(0,0),  Vector2Int(1,0),
-                    Vector2Int(0,1),  Vector2Int(1,1)
-        ]
+        self.grille, couleurs = gestionnaireDeNiveaux.charge_niveau(self.niveau, self.canevas, self.RAYON)
 
-        self.billes: list[list[int]] = []
-        x = self.taille_canevas.x // (2*self.rayon_billes)
-        self.hauteur = (2*self.rayon_billes)*math.cos(math.pi/6)
-        self.taille_grille = (x, x-1, int(self.taille_canevas.y/self.hauteur))
-        for y in range(self.taille_grille[2]):
-            l = [-1 for _ in range(x - y%2)]
-            self.billes.append(l)
-        
-        self.dico_color = {}
-        with open(self.fichier, encoding='utf-8') as csvfile: # lecture du fichier csv contenant le niveau choisi
-            reader = csv.reader(csvfile,  delimiter=",")
-            for j, ligne in enumerate(reader):
-                if j == 0 and len(ligne)-self.taille_grille[0] == -1:
-                    self.billes.pop()
-                    self.billes.insert(0, self.billes[1].copy())
-                    self.grande_ligne = 1
-                for i, c in enumerate(ligne): 
-                    if c!="0": # guillemets car chaîne de caractères
-                        if c not in self.dico_color.keys() : 
-                            x = random.randint(0, len(self.couleurs)-1) # -1 car le len est inclusif, pour ne pas avoir une erreur out of bound
-                            self.dico_color[c] = self.couleurs[x]
-                            self.couleurs.pop(x) # pour n'avoir que les couleurs du niveau
-                        color = self.dico_color[c]
-                        self.place_bille(Vector2Int(i,j), color)
-
-        self.vitesse_balle = 600 # pixels/s
-        self.position_canon = Vector2(250,675) # là où on tire la balle, en bas au centre
-        self.offset_pointilles = 0
-
-    
-    def place_bille(self, bille: Vector2Int, color: str):
-        """Ajoute une bille sur le caneva."""
-        y = max(0, min(bille.y, len(self.billes)-1))
-        x = max(0, min(bille.x, len(self.billes[y])))
-        position = self.coordonees_to_position(bille)
-        self.billes[y][x] = self.canevas.create_oval(*(position-self.centre_bille), *(position+self.centre_bille), fill=color)
-    
-
-    def creer_balle_canon(self):
-        """Crée la balle au niveau du canon à balles (en bas de la fenêtre) et choisi sa couleur aléatoirement."""
-        couleur = random.choice(list(self.dico_color.values()))
-        self.balle_canon = Balle(self.position_canon, self.rayon_billes, Vector2(0, -self.vitesse_balle), couleur, -1)
-        x,y  = self.balle_canon.centre
-        id = self.canevas.create_oval(*self.balle_canon.coin_NW,*self.balle_canon.coin_SE, fill=self.balle_canon.couleur)
-        self.balle_canon.id = id
-    
-
-    def _mouvement_souris(self, event: tk.Event):
-        """Actualise la position de la souris."""
-        self.position_souris.x = event.x
-        self.position_souris.y = event.y
+        self.balles: list[Balle] = []
+        self.canon = Canon(self.canevas, Vector2(250,655), self.grille, self.RAYON, couleurs, self.balles)
 
 
     def update(self):
@@ -158,9 +70,12 @@ class FenetresJeu:
         Appelle toutes les fonctions liées au mouvement de la balle (timer) et du jeu.
         """
 
-        temp_update = time.time()
-        self._prediction_trajectoire()
-        self._update_balle()
+        temp_update = time.time() # pour le timer et le chrono
+        self.canon.update(self.delta)
+        if(len(self.balles) == 1):
+            self.balles[0].update(self.delta)
+        else:
+            self.canon.charge_balle()
         self._update_score()
 
         # fps en fonction du temps de la fonction
@@ -168,7 +83,7 @@ class FenetresJeu:
         tps_update = temps-temp_update
         delai = int((self.delta-tps_update)*1000)
         if(delai <= 0):
-            if(tps_update > 1.5*self.delta):
+            if(tps_update > 2*self.delta): # on fixe une valeur au delà de laquelle on considère qu'on a une trop faible valeur d'images par seconde
                 print(f"LOW FPS ({int(1/tps_update)}/{self.FPS})")
             delai = 1
         self.racine.after(delai, self.update)
@@ -325,7 +240,38 @@ class FenetresJeu:
         """Arrête le jeu (sortir de la fonction update) s'il n'y a plus de billes et affiche le score dans une messagebox."""
         pass
 
-    
+    #    def _update_score(self):
+#        """Actualise le temps total de jeu et le score. Calcule le score du joueur."""
+#
+#        # à appeler à chaque lancer
+#        score = 0
+#        if eclate == True : # rajouter un booleen dans la fonction test_eclate_groupe : on incrémente le score à partir du moment où le lancer éclate des billes
+#            groupe = self.get_groupe(bille) + self.eclate_billes_detaches() # le nombre de billes éclatées = celles du groupe éclaté + celles qui étaient en dessous et qui tombent aussi car non connectées
+#            if groupe == 3 : # nombre minimal pour éclater
+#                score += 3
+#            elif groupe > 3 and < 10 :
+#                score += groupe * 1.2 # bonus : plus on éclate un grand groupe, plus on obtient de points : 1 point par bille éclatée + un coefficient bonus car grande chaîne formée
+#            elif groupe >= 10 and < 15 :
+#                score += groupe * 1.4
+#            elif groupe >= 15 and < 20 :
+#                score += groupe * 1.6
+#            else :
+#                score = score + groupe*2
+#        
+#        if fin_de_partie == True : # booléen dans test_fin_de_partie
+#            if chrono > 180 : # à modifier quand on aura fait la fonction du chrono, si le joueur met plus de 3 minutes pour terminer le niveau (chrono affiché en fin de partie)
+#                score = score # pas de bonus de rapidité
+#            elif chrono > 120 and chrono <= 180 : # s'il met entre 2 et 3 minutes
+#                score = score * 1.1 # léger bonus de rapidité
+#            elif chrono >= 40 and chrono <= 120 :
+#                score = score * 1.2
+#            else : 
+#                score = score * 1.5
+#            
+#        score = score * 10 # pour éviter d'avoir des tout petits scores
+#        return score
+#
+#        # est-ce qu'on affiche le score à chaque lancer en bas ?
     def position_to_coordonees_square(self, position: Vector2) -> Vector2Int:
         """Convertit la position du centre d'une bille du canevas en coordonnées dans la grille de billes."""
         coords = (position - Vector2(self.rayon_billes, self.rayon_billes)) / (2*self.rayon_billes)
@@ -363,14 +309,15 @@ class FenetresJeu:
         return Vector2(self.rayon_billes + coords.x*self.rayon_billes*2 + (self.rayon_billes if coords.y%2 != self.grande_ligne else 0), self.rayon_billes + coords.y * hauteur)
     
     def niveau_aleatoire(self, nb_color):
-        """génère une grille de jeu aléatoirement en repsectant un nombre de couleur de billes"""
+        """Génère une grille de jeu aléatoirement en respectant un nombre de couleurs de billes."""
+
         liste_ligne=[]
         import csv
-        with open(self.fichier, encoding='utf-8') as fichiercsv:
+        with open(self.fichier, encoding='utf-8') as fichiercsv: # lecture du fichier csv
             writer=csv.writer(fichiercsv)
             for i in range (19):
                 for j in range(25):
-                    nb=random.randint(0, len(self.dico_color ))
+                    nb=random.randint(0, len(self.index_couleurs))
                     liste_ligne.append(nb)
                 writer.writerow(liste_ligne)
     
