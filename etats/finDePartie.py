@@ -9,7 +9,7 @@ class FinDePartie(Etat):
     def init(self, score: int, chrono: float) -> None:
         """Fenêtre de fin de partie"""
         self.ids = [
-            fenetre.canevas.create_text(250,250, text=f"Bravo ;) Tu as gagné ! \nTu as réussi à finir le jeu en {chrono} s\nTon score est de : {score}", fill=theme.text[0], font="Comic Sans MS 15 ")
+            fenetre.canevas.create_text(250,250, text=f"Bravo ;) Tu as gagné ! \nTu as réussi à finir le jeu en {chrono} s\nTon score est de : {score}", fill=theme.text[0], font="ComicSansMS 15 ")
         ]
         
     def clear(self) -> None:

@@ -13,7 +13,7 @@ class Jeu(Etat):
     def init(self, niveau: str) -> None:
         """Charge un niveau"""   
         if niveau == 'aleatoire':
-            self.niveau_aleatoire(1)
+            self.niveau_aleatoire(4)
         else:
             lvl.charge_niveau(niveau, fenetre.grille, fenetre.canon)
         self._creer_widgets()
@@ -38,7 +38,7 @@ class Jeu(Etat):
         """Génère une grille de jeu aléatoirement en respectant un nombre de couleurs de billes."""
         fenetre.canon.couleurs = [i for i in range(nb_color)]
         for y in range(0, 20):
-            for x in range(0, 10):
+            for x in range(fenetre.grille.dimensions.x-(y-fenetre.grille.grande_ligne)%2):
                 fenetre.grille.place(Vector2Int(x, y), theme.billes[random.choice(fenetre.canon.couleurs)])
 
     def update(self, delta: float) -> None:
@@ -70,7 +70,7 @@ class Jeu(Etat):
 
        # est-ce qu'on affiche le score à chaque lancer en bas ?
     
-    def test_fin_de_partie(self) -> bool: 
+    def test_fin_de_partie(self): 
         """Arrête le jeu (sortir de la fonction update) s'il n'y a plus de billes et affiche le score dans une messagebox."""
         if fenetre.grille.compte_billes == 0:
             mult = 1
