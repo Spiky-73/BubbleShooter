@@ -1,11 +1,11 @@
 import csv
-from core.script import Script
+from core.etat import Etat
 from core.fenetre import fenetre
 import core.gestionnaireDeNiveaux as lvl
 from core.gestionnaireDeTheme import theme
 from utilitaire import Vector2Int
 
-class Jeu(Script):
+class Jeu(Etat):
 
     def init(self, niveau: str) -> None:
         """Charge un niveau"""   

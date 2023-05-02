@@ -1,5 +1,5 @@
 
-class Script:
+class Etat:
 
     def __init__(self) -> None:
         pass

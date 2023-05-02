@@ -5,7 +5,7 @@ import math
 from .balle import Balle
 from .canon import Canon
 from .grilleHexagonale import GrilleHexagonale
-from .script import Script
+from .etat import Etat
 
 
 from .gestionnaireDeTheme import theme
@@ -35,18 +35,18 @@ class Fenetre:
         self.balles: list[Balle] = []
         self.canon = Canon(self.canevas, Vector2(250,655), self.grille, self.RAYON, [0], self.balles)
 
-        self.scipt: Script = None
+        self.scipt: Etat = None
 
-    def start(self, script: Script, *args):
-        self.set_scipt(script, *args)
+    def start(self, etat: Etat, *args):
+        self.set_scipt(etat, *args)
         self.update()
         self.racine.mainloop()
 
 
-    def set_scipt(self, script: Script, *args):
+    def set_scipt(self, etat: Etat, *args):
         if(self.scipt != None):
             self.scipt.clear()
-        self.scipt = script
+        self.scipt = etat
         self.grille.reset()
         self.canon.reset()
         self.canevas.configure(bg=theme.fond)
@@ -77,6 +77,6 @@ class Fenetre:
         self.racine.after(delai, self.update)
 
 
-# idéalement, chaque script aurait une réference a la fenetre principale, et elle ne serait pas stoqués dans les variables globalles.
-# ce n'ait malheureusement pas possible car cela causserait un import circulaire (script -> fenetre -> script)
+# idéalement, chaque etat aurait une réference a la fenetre principale, et elle ne serait pas stoqués dans les variables globalles.
+# ce n'ait malheureusement pas possible car cela causserait un import circulaire (etat -> fenetre -> etat)
 fenetre = Fenetre()

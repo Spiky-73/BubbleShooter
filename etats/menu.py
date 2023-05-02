@@ -1,5 +1,5 @@
 from tkinter import messagebox
-from core.script import Script
+from core.etat import Etat
 from core.fenetre import fenetre
 from core.gestionnaireDeTheme import theme
 from .jeu import Jeu
@@ -7,7 +7,7 @@ from utilitaire import Vector2, Vector2Int
 import core.gestionnaireDeNiveaux as lvl
 
 
-class Menu(Script):
+class Menu(Etat):
     
     def init(self) -> None:
 
