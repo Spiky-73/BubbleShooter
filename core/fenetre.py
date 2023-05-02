@@ -33,9 +33,11 @@ class Fenetre:
         
         self.grille = GrilleHexagonale(self.canevas, self.DIMENSIONS, self.RAYON)
         self.balles: list[Balle] = []
-        self.canon = Canon(self.canevas, Vector2(250,655), self.grille, self.RAYON, [0], self.balles)
+        self.canon = Canon(self.canevas, self.grille.coordonees_to_position(Vector2Int(13,39)), self.grille, self.RAYON, [0], self.balles)
 
         self.scipt: Etat = None
+
+        self.temp_update: float = 0
 
     def start(self, etat: Etat, *args):
         self.set_scipt(etat, *args)
@@ -60,11 +62,13 @@ class Fenetre:
         Appelle toutes les fonctions liées au mouvement de la balle (timer) et du jeu.
         """
 
-        temp_update = time.time() # pour le timer et le chrono
-        if(len(self.balles) == 1): self.balles[0].update(self.DELTA)
+        temp_update = time.time()
+        delta = temp_update - self.temp_update
+        self.temp_update = temp_update # pour le timer et le chrono
+        if(len(self.balles) == 1): self.balles[0].update(delta)
         else: self.canon.charge_balle()
-        self.canon.update(self.DELTA)
-        self.scipt.update(self.DELTA)
+        self.canon.update(delta)
+        self.scipt.update(delta)
 
         # fps en fonction du temps de la fonction
         temps = time.time()
@@ -75,6 +79,8 @@ class Fenetre:
                 print(f"LOW FPS ({int(1/tps_update)}/{self.FPS})")
             delai = 1
         self.racine.after(delai, self.update)
+
+        
 
 
 # idéalement, chaque etat aurait une réference a la fenetre principale, et elle ne serait pas stoqués dans les variables globalles.

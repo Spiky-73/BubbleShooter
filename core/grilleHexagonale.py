@@ -32,6 +32,7 @@ class GrilleHexagonale:
 
         self._binds: dict[str, Callable[[Vector2Int], None]] = {}
 
+        self.compte_billes=0
 
         self._grille: list[list[int]] = []
         for y in range(self.dimensions.y):
@@ -60,12 +61,15 @@ class GrilleHexagonale:
         self._grille[y][x] = self.canevas.create_oval(*(position-self.centre), *(position+self.centre), fill=color, tags="Bille")
         if(self.gelee):
             self.canevas.addtag_withtag("temp", self._grille[y][x])
+            
+        self.compte_billes += 1 # on incrémente le compteur du nombre de billes
 
     
     def enleve(self, bille: Vector2Int):
         """Surprime une bille sur le caneva."""
         self.canevas.delete(self._grille[bille.y][bille.x])
         self._grille[bille.y][bille.x] = -1
+        self.compte_billes -=1
 
     def eclate(self, bille: Vector2Int):
         """Eclate une bille."""
@@ -86,6 +90,7 @@ class GrilleHexagonale:
 
         
     def reset(self):
+        self.compte_billes = 0
         self.gelee = False
         self._binds = {}
         for y in range(self.dimensions.y):
@@ -203,6 +208,7 @@ class GrilleHexagonale:
                 type_ligne = 1-type_ligne
         
         return Vector2Int(int(x), int(y))
+    
     
     def coordonees_to_position(self, coords: Vector2Int) -> Vector2:
         """Convertit des coordonnées dans la grille de bille en position sur le canevas"""

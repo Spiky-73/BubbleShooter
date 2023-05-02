@@ -29,7 +29,6 @@ def charge_niveau(nom: str, grille: GrilleHexagonale, canon: Canon) -> None:
                     if(not c in couleurs):
                         couleurs.append(c)
                     grille.place(Vector2Int(i,j), theme.billes[c])
-    
     canon.couleurs = couleurs
 
 

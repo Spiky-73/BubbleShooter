@@ -15,6 +15,7 @@ class Canon:
     RAYON_POINTILLES = 2
     ESPACEMENT_POINTILLES = 75
     ECHELLE_RESERVE = 0.5
+    REJET_PAR_LANCE = 2
 
     def __init__(self, canevas: tkinter.Canvas, position: Vector2, grille: GrilleHexagonale, rayon: int, couleurs: list[int], balles: list[Balle]) -> None:
         self.canevas = canevas
@@ -41,11 +42,15 @@ class Canon:
         self.pointilles: list[int] = [] # crée les pointillés a l'avance pour éviter de les recréer en permanace et augmenter les performances
         self.pointilles_visibles = 0
         self.offset_pointilles = 0
+        self.balle_lances = 0
+        self.rejet_restant = self.REJET_PAR_LANCE
         for _ in range(50):
             self.pointilles.append(self.canevas.create_oval(-self.RAYON_POINTILLES, -self.RAYON_POINTILLES, self.RAYON_POINTILLES, self.RAYON_POINTILLES, fill="", outline=""))
         self.pointilles.append(self.canevas.create_oval(*(self.centre_balle*-1), *self.centre_balle, fill="", outline="", width=2))
 
     def reset(self):
+        self.rejet_restant = self.REJET_PAR_LANCE
+        self.balle_lances = 0
         for id, _ in self.reserve: self.canevas.delete(id)
 
         self.reserve = []
@@ -90,10 +95,15 @@ class Canon:
         self.canevas.itemconfigure(self.pointilles[-1], outline="")
         self.balles_mobiles.append(self.balle)
         self.balle = None
+
+        self.rejet_restant = self.REJET_PAR_LANCE
+        self.balle_lances +=1
     
     def discard_balle(self, event) : 
         """Ignore la balle actuelle et charge la suivante."""
         if(self.balle is None): return
+        if self.rejet_restant <= 0: return
+        if not self.grille.gelee: self.rejet_restant -= 1
         self.canevas.delete(self.balle.id)
         self.balle = None
         self.charge_balle()
