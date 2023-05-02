@@ -13,7 +13,7 @@ _dossier = "niveaux"
 
 def charge_niveau(nom: str, grille: GrilleHexagonale, canon: Canon) -> None:
     """Charge un niveau"""   
-    path = f"scripts/{nom[1:]}.csv" if(nom.startswith("#")) else f"{_dossier}/{nom}.csv"
+    path = f"etats/{nom[1:]}.csv" if(nom.startswith("#")) else f"{_dossier}/{nom}.csv"
     grille.reset()
     canon.reset()
     

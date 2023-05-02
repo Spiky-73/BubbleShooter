@@ -2,7 +2,7 @@
 Exécutez ce fichier pour jouer au jeu.
 """
 from core.fenetre import fenetre
-from scripts.menu import Menu
+from etats.menu import Menu
 
 # import pathlib
 # import tkinter as tk
