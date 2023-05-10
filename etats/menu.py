@@ -72,6 +72,8 @@ class Menu(Etat):
 
                             "\nÀ chaque bille éclatée, tu gagnes des points. Si tu manques ton coup, ta bulle se collera aux autres et te rajoutera un handicap pour atteindre ton but.\n"
 
+                            "\nTu as la possibilité de changer la balle que tu vas tirer avec ton canon. Les balles suivantes sont affichées dans l'ordre à côté du canon. Tu peux choisir de lancer la balle suivante plutôt que celle initialement dans ton canon. Pour cela, fais un clic droit avec ta souris. Attention, tu ne peux faire que 2 clics droits par tir au maximum !\n"
+
                             "Pour augmenter ton score, essaye d'exploser des grands groupes de billes. Plus le groupe de billes qui explose est grand, plus tes points gagnés sont multipliés ! Ta rapidité est aussi prise en compte pour calculer ton score alors tente d'éliminer toutes les billes le plus rapidement possible !"
 
                             "\n\nSi une des billes touche le bas du plateau, tu perds la partie. En revanche, si tu les élimines toutes, tu gagnes la partie.\nA toi de jouer ! :)\n")  
