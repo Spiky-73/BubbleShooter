@@ -19,6 +19,7 @@ class GrilleHexagonale:
     ]
 
     def __init__(self, canevas: tkinter.Canvas, dimensions: Vector2Int, rayon: int, grande_ligne: Literal[0,1] = 0):
+        """Initialise la grille."""
 
         self.gelee = False
 
@@ -38,12 +39,13 @@ class GrilleHexagonale:
         for y in range(self.dimensions.y):
             self._grille.append([-1 for _ in range(self.dimensions.y-(y-self.grande_ligne)%2)])
 
-
-        self.img_eclats = tkinter.PhotoImage(file="images/eclats.png").subsample(6)
+        self.img_eclats = tkinter.PhotoImage(file="images/eclats.png").subsample(6) # pour l'animation
 
 
     def bind_tag(self, nom: str, action: Callable[[Vector2Int], None]) -> None:
+        """A fare."""
         self._binds[nom] = action
+        
 
     def tag_bille(self, bille: Vector2Int, tag: str):
         self.canevas.addtag_withtag(tag, self[bille])
