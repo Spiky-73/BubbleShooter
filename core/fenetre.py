@@ -16,6 +16,7 @@ class Fenetre:
 
     RAYON = 10 # rayon des billes
     DIMENSIONS = Vector2Int(25, 42)
+    POSITION_CANNON = Vector2Int(DIMENSIONS.x//2, DIMENSIONS.y-3)
     HAUTEUR = 2*RAYON*math.cos(math.pi/6)
 
     FPS = 60
@@ -35,7 +36,7 @@ class Fenetre:
         
         self.grille = GrilleHexagonale(self.canevas, self.DIMENSIONS, self.RAYON)
         self.balles: list[Balle] = []
-        self.canon = Canon(self.canevas, self.grille.coordonees_to_position(Vector2Int(13,39)), self.grille, self.RAYON, [0], self.balles)
+        self.canon = Canon(self.canevas, self.grille.coordonees_to_position(self.POSITION_CANNON), self.grille, self.RAYON, [0], self.balles)
 
         self.etat: Etat = None
 

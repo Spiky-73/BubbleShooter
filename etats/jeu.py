@@ -5,13 +5,15 @@ from core.fenetre import fenetre
 import core.gestionnaireDeNiveaux as lvl
 from core.gestionnaireDeTheme import theme
 from utilitaire import Vector2Int
+from .finDePartie import FinDePartie
+from core.grilleHexagonale import GrilleHexagonale
 
 class Jeu(Etat):
 
     def init(self, niveau: str) -> None:
         """Charge un niveau"""   
         if niveau == 'aleatoire':
-            self.niveau_aleatoire(4)
+            self.niveau_aleatoire(1)
         else:
             lvl.charge_niveau(niveau, fenetre.grille, fenetre.canon)
         self._creer_widgets()
@@ -77,9 +79,9 @@ class Jeu(Etat):
             gagner=True
             fenetre.set_etat("FinDePartie", gagner, self.score, self.chrono)
 
-        
-#        elif Balle.position: #si balle touche bas grille
-            gagner=False
-            fenetre.set_etat("FinDePartie", gagner, self.score, self.chrono)
-
+        else:
+            for i in fenetre.grille._grille[fenetre.POSITION_CANNON.y]:
+                if i != -1:
+                    gagner=False
+                    fenetre.set_scipt(FinDePartie(), gagner, self.score, self.chrono)
 fenetre.ajout_etat(Jeu())
