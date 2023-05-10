@@ -18,5 +18,6 @@ class FinDePartie(Etat):
                 fenetre.canevas.create_text(250,250, text=f"Tu as perdu... \nTu as fini le jeu en {chrono} s\nTon score est de : {score}", fill=theme.text[0], font="ComicSansMS 15 ")
             ]
     def clear(self) -> None:
+        """ supprime la fenêtre de jeu une fois la partie terminée"""
         for id in self.ids:
             fenetre.canevas.delete(id)

@@ -6,7 +6,7 @@ import core.gestionnaireDeNiveaux as lvl
 from core.gestionnaireDeTheme import theme
 from utilitaire import Vector2Int
 from .finDePartie import FinDePartie
-from core.balle import Balle
+from core.grilleHexagonale import GrilleHexagonale
 
 class Jeu(Etat):
 
@@ -83,7 +83,8 @@ class Jeu(Etat):
             gagner=True
             fenetre.set_scipt(FinDePartie(), gagner, self.score, self.chrono)
 
-        
-#        elif Balle.position: #si balle touche bas grille
-            gagner=False
-            fenetre.set_scipt(FinDePartie(gagner, self.score, self.chrono))
+        else:
+            for i in fenetre.grille._grille[fenetre.POSITION_CANNON.y]:
+                if i != -1:
+                    gagner=False
+                    fenetre.set_scipt(FinDePartie(), gagner, self.score, self.chrono)
