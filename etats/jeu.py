@@ -11,7 +11,7 @@ class Jeu(Etat):
     def init(self, niveau: str) -> None:
         """Charge un niveau"""   
         if niveau == 'aleatoire':
-            self.niveau_aleatoire(4)
+            self.niveau_aleatoire(1)
         else:
             lvl.charge_niveau(niveau, fenetre.grille, fenetre.canon)
         self._creer_widgets()
