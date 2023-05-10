@@ -9,12 +9,12 @@ from .etat import Etat
 
 
 from .gestionnaireDeTheme import theme
-from utilitaire import Vector2, Vector2Int
+from utilitaire import Vector2Int
 
 
 class Fenetre:
 
-    RAYON = 10
+    RAYON = 10 # rayon des billes
     DIMENSIONS = Vector2Int(25, 42)
     POSITION_CANNON = Vector2Int(DIMENSIONS.x//2, DIMENSIONS.y-3)
     HAUTEUR = 2*RAYON*math.cos(math.pi/6)
@@ -25,8 +25,10 @@ class Fenetre:
     def __init__(self):
         """ Initialise la fenêtre de jeu avec le niveau choisi. """
 
+        self._etats: dict[str, Etat] = {}
+
         self.racine = tk.Tk()        
-        self.racine.title(f"Bubbleshooter")
+        self.racine.title(f"Bubbleshooter") # pour la fenêtre de menu
         self.racine.resizable(height = False, width = False)
 
         self.canevas = tk.Canvas(self.racine, width=self.DIMENSIONS.x*2*self.RAYON, height=self.DIMENSIONS.y*self.HAUTEUR, bd=0, highlightthickness=0, bg=theme.fond)
@@ -36,24 +38,33 @@ class Fenetre:
         self.balles: list[Balle] = []
         self.canon = Canon(self.canevas, self.grille.coordonees_to_position(self.POSITION_CANNON), self.grille, self.RAYON, [0], self.balles)
 
-        self.scipt: Etat = None
+        self.etat: Etat = None
 
         self.temp_update: float = 0
 
-    def start(self, etat: Etat, *args):
-        self.set_scipt(etat, *args)
+
+    def start(self, etat: str, *args):
+        """Lance programme sur etat Etat."""
+        self.set_etat(etat, *args)
         self.update()
         self.racine.mainloop()
 
 
-    def set_scipt(self, etat: Etat, *args):
-        if(self.scipt != None):
-            self.scipt.clear()
-        self.scipt = etat
+    def ajout_etat(self, etat: Etat):
+        """Enregistre un état."""
+        self._etats[etat.__class__.__name__] = etat
+
+
+    def set_etat(self, etat: str, *args):
+        """Change l'état du jeu actuel."""
+
+        if(self.etat != None): # pour éviter une erreur s'il n'y a pas déjà un état
+            self.etat.clear()
+        self.etat = self._etats[etat]
         self.grille.reset()
         self.canon.reset()
         self.canevas.configure(bg=theme.fond)
-        self.scipt.init(*args)
+        self.etat.init(*args)
         self.canon.charge_balle()
 
 
@@ -66,10 +77,15 @@ class Fenetre:
         temp_update = time.time()
         delta = temp_update - self.temp_update
         self.temp_update = temp_update # pour le timer et le chrono
-        if(len(self.balles) == 1): self.balles[0].update(delta)
+        if(len(self.balles) == 1):
+            etat,  billes = self.etat.__class__.__name__, self.grille.compte_billes
+            self.balles[0].update(delta)
+            eclates = billes - self.grille.compte_billes
+            if(etat == self.etat.__class__.__name__ and eclates > 0):
+                self.etat.on_eclatement_bille(eclates+1)
         else: self.canon.charge_balle()
         self.canon.update(delta)
-        self.scipt.update(delta)
+        self.etat.update(delta)
 
         # fps en fonction du temps de la fonction
         temps = time.time()
@@ -81,9 +97,7 @@ class Fenetre:
             delai = 1
         self.racine.after(delai, self.update)
 
-        
 
-
-# idéalement, chaque etat aurait une réference a la fenetre principale, et elle ne serait pas stoqués dans les variables globalles.
-# ce n'ait malheureusement pas possible car cela causserait un import circulaire (etat -> fenetre -> etat)
+# idéalement, chaque état aurait une réference a la fenêtre principale, et elle ne serait pas stockée dans les variables globales
+# ce n'est malheureusement pas possible car cela causerait un import circulaire (etat -> fenetre -> etat)
 fenetre = Fenetre()
