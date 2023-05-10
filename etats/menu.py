@@ -8,6 +8,7 @@ import core.gestionnaireDeNiveaux as lvl
 class Menu(Etat):
     
     def init(self) -> None:
+        """Constructeur"""
 
         lvl.charge_niveau("#menu", fenetre.grille, fenetre.canon)
         fenetre.grille.bind_tag("play", self.play)
@@ -31,30 +32,43 @@ class Menu(Etat):
         ]
         fenetre.grille.gelee = True
 
-    
 
     def clear(self) -> None:
+        """Supprime la fenêtre."""
+
         for id in self.ids:
             fenetre.canevas.delete(id)
 
 
     def update(self, delta: float) -> None:
+        """A faire"""
+
         return super().update(delta)
+    
 
     def play(self, bille):
+        """Pour sélectionner la fenêtre de jeu."""
+
         fenetre.set_etat("Jeu", self.niveau)
+
     
     def niveau_suiv(self, bille):
+        """Pour que quand la bille touche ce "bouton", on passe au niveau suivant (facile --> moyen --> aléatoire). Pour que le joueur choisisse le niveau avec lequel il veut jouer."""
+
         niveaux = list(lvl.iter_niveaux())
         self.niveau = niveaux[(niveaux.index(self.niveau)+1)%len(niveaux)]
         fenetre.canevas.itemconfigure(self.ids[3], text = self.niveau.upper())
+
     
     def theme_suiv(self, bille):
+        """Idem, même principe que niveau_suiv mais cette fois ci avec les différents thèmes de couleur."""
+
         themes = list(theme.iter_themes())
         self.theme = themes[(themes.index(self.theme)+1)%len(themes)]
         fenetre.canevas.itemconfigure(self.ids[5], text = self.theme.upper())
         theme.charge_theme(self.theme)
         fenetre.set_etat("Menu")
+
 
     def regles(self, bille):
         """Ouvre une message box contenant les règles du jeu."""
@@ -76,5 +90,6 @@ class Menu(Etat):
                             "Pour augmenter ton score, essaye d'exploser des grands groupes de billes. Plus le groupe de billes qui explose est grand, plus tes points gagnés sont multipliés ! Ta rapidité est aussi prise en compte pour calculer ton score alors tente d'éliminer toutes les billes le plus rapidement possible !"
 
                             "\n\nSi une des billes touche le bas du plateau, tu perds la partie. En revanche, si tu les élimines toutes, tu gagnes la partie.\nA toi de jouer ! :)\n")  
+
 
 fenetre.ajout_etat(Menu())

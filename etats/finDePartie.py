@@ -28,7 +28,9 @@ class FinDePartie(Etat):
             ]
         fenetre.grille.gelee = True
 
+
     def clear(self) -> None:
-        """ supprime la fenêtre de jeu une fois la partie terminée"""
+        """Supprime la fenêtre de jeu une fois la partie terminée."""
+        
         for id in self.ids:
             fenetre.canevas.delete(id)
