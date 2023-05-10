@@ -43,20 +43,26 @@ class GrilleHexagonale:
 
 
     def bind_tag(self, nom: str, action: Callable[[Vector2Int], None]) -> None:
-        """A fare."""
+        """Relie une action à un nom."""
+
         self._binds[nom] = action
-        
+
 
     def tag_bille(self, bille: Vector2Int, tag: str):
+        """A faire"""
+
         self.canevas.addtag_withtag(tag, self[bille])
 
 
     def __getitem__(self, coords: Vector2Int) -> int:
-        """Renvoie l'id de la bille dans la case correspondante"""
+        """Renvoie l'id de la bille dans la case correspondante."""
+
         return self._grille[coords.y][coords.x]
+
 
     def place(self, bille: Vector2Int, color: str):
         """Ajoute une bille sur le caneva."""
+
         y = max(0, min(bille.y, len(self._grille)-1))
         x = max(0, min(bille.x, len(self._grille[y])))
         position = self.coordonees_to_position(bille) # appel de coordonees_to_position pour la conversion
@@ -68,17 +74,18 @@ class GrilleHexagonale:
 
     
     def enleve(self, bille: Vector2Int):
-        """Surprime une bille sur le caneva."""
-        self.canevas.delete(self._grille[bille.y][bille.x])
+        """Supprime une bille sur le caneva."""
+
+        self.canevas.delete(self._grille[bille.y][bille.x]) # efface
         self._grille[bille.y][bille.x] = -1
-        self.compte_billes -=1
+        self.compte_billes -= 1 # on a enlevé une bille donc le compteur du nombre de billes total diminue de 1
+
 
     def eclate(self, bille: Vector2Int):
         """Eclate une bille."""
             
         pos = self.coordonees_to_position(bille)
         anim = self.canevas.create_image(pos.x,pos.y, image = self.img_eclats, anchor=tkinter.CENTER)
-
         
         if(not self.gelee or "temp" in self.canevas.gettags(self[bille])):
             self.enleve(bille)
@@ -92,7 +99,9 @@ class GrilleHexagonale:
 
         
     def reset(self):
-        self.compte_billes = 0
+        """A faire"""
+
+        self.compte_billes = 0 # réinitialise le compteur du nombre de billes à 0
         self.gelee = False
         self._binds = {}
         for y in range(self.dimensions.y):
@@ -103,6 +112,8 @@ class GrilleHexagonale:
 
 
     def glissement(self):
+        """Ce qui fait avancer la bille, son mouvement."""
+
         self.grande_ligne = (self.grande_ligne+1)%2
         self._grille.insert(0, [-1 for _ in range(self.dimensions.x-self.grande_ligne)])
         for bille in self._grille.pop():
@@ -131,9 +142,9 @@ class GrilleHexagonale:
                         attente.append(n_pos)
                         groupe.append(n_pos)
 
-        
         del tags["Bille"]
         return groupe, tags
+    
        
     def test_eclate_groupe(self, bille: Vector2Int):
         """Teste si la bille touchée appartient à un groupe d'au moins 2 billes de même couleur que la balle lancée."""
@@ -155,9 +166,9 @@ class GrilleHexagonale:
 
 
     def eclate_billes_detaches(self):
-        """Eclates les billes qui ne sont pas rattachées au haut de la grille"""
+        """Eclate les billes qui ne sont pas rattachées au haut de la grille"""
 
-        # stoquage des données (-1: non exploré, )
+        # stockage des données (-1: non exploré)
         connectees: list[list[bool]] = []
         attente: list[Vector2Int] = []
 
@@ -179,7 +190,7 @@ class GrilleHexagonale:
                     connectees[n_pos.y][n_pos.x] = True
                     if(self[n_pos] != -1): attente.append(n_pos)
 
-        # suppresion des billes non connectés
+        # suppression des billes non connectées
         eclates = 0
         for y in range(self.dimensions.y):
             cl = (y-self.grande_ligne)%2
@@ -189,10 +200,11 @@ class GrilleHexagonale:
                     eclates += 1
 
 
-
     def coords_valides(self, coords: Vector2Int):
-        """Renvoie vrai si les coordonnés sont dans la grille."""
+        """Renvoie vrai si les coordonnées sont dans la grille."""
+
         return 0 <= coords.y and coords.y < self.dimensions.y and 0 <= coords.x and coords.x < self.dimensions.x - (coords.y-self.grande_ligne)%2
+
 
     def position_to_coordonees(self, position: Vector2) -> Vector2Int:
         """Convertit la position du centre d'une bille du canevas en coordonnées dans la grille de billes."""
@@ -216,7 +228,8 @@ class GrilleHexagonale:
     
     
     def coordonees_to_position(self, coords: Vector2Int) -> Vector2:
-        """Convertit des coordonnées dans la grille de bille en position sur le canevas"""
+        """Convertit des coordonnées dans la grille de billes en position sur le canevas"""
+
         x = self.rayon + coords.x*self.rayon*2 + (self.rayon * ((coords.y-self.grande_ligne)%2))
         y = self.rayon + coords.y * self.hauteur
         return Vector2(x, y)
@@ -224,9 +237,12 @@ class GrilleHexagonale:
 
     def _eclate_bille_fin(self, anim_id: int):
         """Fin de l'animation."""
+
         self.canevas.delete(anim_id)
+        
     
     def _eclate_bille_regrowth(self, anim_id: int, id_bille: int, color: str):
         """Fin de l'animation."""
+        
         self.canevas.delete(anim_id)
         self.canevas.itemconfigure(id_bille, fill=color, outline="black")
