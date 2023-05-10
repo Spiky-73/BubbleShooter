@@ -9,11 +9,13 @@ from utilitaire import Vector2Int
 from .gestionnaireDeTheme import theme
 
 
-_dossier = "niveaux"
+_dossier = "niveaux" # pas utile de faire une classe
+
 
 def charge_niveau(nom: str, grille: GrilleHexagonale, canon: Canon) -> None:
-    """Charge un niveau"""   
-    path = f"etats/{nom[1:]}.csv" if(nom.startswith("#")) else f"{_dossier}/{nom}.csv"
+    """Charge un niveau."""
+
+    path = f"etats/{nom[1:]}.csv" if(nom.startswith("#")) else f"{_dossier}/{nom}.csv" # charge le niveau à partir de son nom
     grille.reset()
     canon.reset()
     
@@ -33,7 +35,8 @@ def charge_niveau(nom: str, grille: GrilleHexagonale, canon: Canon) -> None:
 
 
 def iter_niveaux() -> Iterator[str]:
-    """Renvoie le nom de tous les themes disponibles"""
+    """Renvoie le nom de tous les thèmes disponibles."""
+
     path = pathlib.Path(_dossier)
     for theme in path.glob('*.csv'):
         yield theme.name.removesuffix(".csv")
