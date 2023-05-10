@@ -14,7 +14,7 @@ from utilitaire import Vector2Int
 
 class Fenetre:
 
-    RAYON = 10
+    RAYON = 10 # rayon des billes
     DIMENSIONS = Vector2Int(25, 42)
     HAUTEUR = 2*RAYON*math.cos(math.pi/6)
 
@@ -27,7 +27,7 @@ class Fenetre:
         self._etats: dict[str, Etat] = {}
 
         self.racine = tk.Tk()        
-        self.racine.title(f"Bubbleshooter")
+        self.racine.title(f"Bubbleshooter") # pour la fenêtre de menu
         self.racine.resizable(height = False, width = False)
 
         self.canevas = tk.Canvas(self.racine, width=self.DIMENSIONS.x*2*self.RAYON, height=self.DIMENSIONS.y*self.HAUTEUR, bd=0, highlightthickness=0, bg=theme.fond)
@@ -41,17 +41,23 @@ class Fenetre:
 
         self.temp_update: float = 0
 
+
     def start(self, etat: str, *args):
+        """Lance programme sur etat Etat."""
         self.set_etat(etat, *args)
         self.update()
         self.racine.mainloop()
 
 
     def ajout_etat(self, etat: Etat):
+        """Enregistre un état."""
         self._etats[etat.__class__.__name__] = etat
 
+
     def set_etat(self, etat: str, *args):
-        if(self.etat != None):
+        """Change l'état du jeu actuel."""
+
+        if(self.etat != None): # pour éviter une erreur s'il n'y a pas déjà un état
             self.etat.clear()
         self.etat = self._etats[etat]
         self.grille.reset()
@@ -90,9 +96,7 @@ class Fenetre:
             delai = 1
         self.racine.after(delai, self.update)
 
-        
 
-
-# idéalement, chaque etat aurait une réference a la fenetre principale, et elle ne serait pas stoqués dans les variables globalles.
-# ce n'ait malheureusement pas possible car cela causserait un import circulaire (etat -> fenetre -> etat)
+# idéalement, chaque état aurait une réference a la fenêtre principale, et elle ne serait pas stockée dans les variables globales
+# ce n'est malheureusement pas possible car cela causerait un import circulaire (etat -> fenetre -> etat)
 fenetre = Fenetre()

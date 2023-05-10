@@ -1,15 +1,13 @@
 
 class Etat:
-
-    def __init__(self) -> None:
+        
+    def init(self, *args) -> None:
         pass
+    
 
     def clear(self) -> None:
         pass
 
-    
-    def init(self, *args) -> None:
-        pass
     
     def update(self, delta: float) -> None:
         pass
