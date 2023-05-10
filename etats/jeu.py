@@ -6,7 +6,7 @@ import core.gestionnaireDeNiveaux as lvl
 from core.gestionnaireDeTheme import theme
 from utilitaire import Vector2Int
 from .finDePartie import FinDePartie
-
+from core.balle import Balle
 
 class Jeu(Etat):
 
@@ -73,10 +73,17 @@ class Jeu(Etat):
     def test_fin_de_partie(self) -> bool: 
         """Arrête le jeu (sortir de la fonction update) s'il n'y a plus de billes et affiche le score dans une messagebox."""
         if fenetre.grille.compte_billes == 0:
+           
             mult = 1
             if self.chrono < 40:     mult = 1.5 # bonus 
             elif self.chrono <= 120 : mult = 1.2
             elif self.chrono <= 180 : mult = 1.1 # léger bonus de rapidité si on met entre 2 et 3 minutes pour finir le jeu
             else : mult = 1 # si le joueur met plus de 3 minutes pour terminer le niveau (chrono affiché en fin de partie), pas de bonus de rapidité
             self.score *= mult
-            fenetre.set_scipt(FinDePartie(), self.score, self.chrono)
+            gagner=True
+            fenetre.set_scipt(FinDePartie(), gagner, self.score, self.chrono)
+
+        
+#        elif Balle.position: #si balle touche bas grille
+            gagner=False
+            fenetre.set_scipt(FinDePartie(gagner, self.score, self.chrono))
