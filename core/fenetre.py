@@ -24,6 +24,8 @@ class Fenetre:
     def __init__(self):
         """ Initialise la fenêtre de jeu avec le niveau choisi. """
 
+        self._etats: dict[str, Etat] = {}
+
         self.racine = tk.Tk()        
         self.racine.title(f"Bubbleshooter")
         self.racine.resizable(height = False, width = False)
@@ -39,16 +41,19 @@ class Fenetre:
 
         self.temp_update: float = 0
 
-    def start(self, etat: Etat, *args):
+    def start(self, etat: str, *args):
         self.set_etat(etat, *args)
         self.update()
         self.racine.mainloop()
 
 
-    def set_etat(self, etat: Etat, *args):
+    def ajout_etat(self, etat: Etat):
+        self._etats[etat.__class__.__name__] = etat
+
+    def set_etat(self, etat: str, *args):
         if(self.etat != None):
             self.etat.clear()
-        self.etat = etat
+        self.etat = self._etats[etat]
         self.grille.reset()
         self.canon.reset()
         self.canevas.configure(bg=theme.fond)

@@ -20,3 +20,5 @@ class FinDePartie(Etat):
     def clear(self) -> None:
         for id in self.ids:
             fenetre.canevas.delete(id)
+
+fenetre.ajout_etat(FinDePartie())

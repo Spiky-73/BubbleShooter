@@ -2,7 +2,6 @@ from tkinter import messagebox
 from core.etat import Etat
 from core.fenetre import fenetre
 from core.gestionnaireDeTheme import theme
-from .jeu import Jeu
 from utilitaire import Vector2, Vector2Int
 import core.gestionnaireDeNiveaux as lvl
 
@@ -43,7 +42,7 @@ class Menu(Etat):
         return super().update(delta)
 
     def play(self, bille):
-        fenetre.set_etat(Jeu(), self.niveau)
+        fenetre.set_etat("Jeu", self.niveau)
     
     def niveau_suiv(self, bille):
         niveaux = list(lvl.iter_niveaux())
@@ -55,7 +54,7 @@ class Menu(Etat):
         self.theme = themes[(themes.index(self.theme)+1)%len(themes)]
         fenetre.canevas.itemconfigure(self.ids[5], text = self.theme.upper())
         theme.charge_theme(self.theme)
-        fenetre.set_etat(Menu())
+        fenetre.set_etat("Menu")
 
     def regles(self, bille):
         """Ouvre une message box contenant les règles du jeu."""
@@ -78,3 +77,4 @@ class Menu(Etat):
 
                             "\n\nSi une des billes touche le bas du plateau, tu perds la partie. En revanche, si tu les élimines toutes, tu gagnes la partie.\nA toi de jouer ! :)\n")  
 
+fenetre.ajout_etat(Menu())

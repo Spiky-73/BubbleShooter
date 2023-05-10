@@ -5,8 +5,6 @@ from core.fenetre import fenetre
 import core.gestionnaireDeNiveaux as lvl
 from core.gestionnaireDeTheme import theme
 from utilitaire import Vector2Int
-from .finDePartie import FinDePartie
-from core.balle import Balle
 
 class Jeu(Etat):
 
@@ -77,9 +75,11 @@ class Jeu(Etat):
             else : mult = 1 # si le joueur met plus de 3 minutes pour terminer le niveau (chrono affiché en fin de partie), pas de bonus de rapidité
             self.score *= mult
             gagner=True
-            fenetre.set_etat(FinDePartie(), gagner, self.score, self.chrono)
+            fenetre.set_etat("FinDePartie", gagner, self.score, self.chrono)
 
         
 #        elif Balle.position: #si balle touche bas grille
             gagner=False
-            fenetre.set_etat(FinDePartie(), gagner, self.score, self.chrono)
+            fenetre.set_etat("FinDePartie", gagner, self.score, self.chrono)
+
+fenetre.ajout_etat(Jeu())
