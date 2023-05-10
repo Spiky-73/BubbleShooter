@@ -43,7 +43,7 @@ class Menu(Etat):
         return super().update(delta)
 
     def play(self, bille):
-        fenetre.set_scipt(Jeu(), self.niveau)
+        fenetre.set_etat(Jeu(), self.niveau)
     
     def niveau_suiv(self, bille):
         niveaux = list(lvl.iter_niveaux())
@@ -55,7 +55,7 @@ class Menu(Etat):
         self.theme = themes[(themes.index(self.theme)+1)%len(themes)]
         fenetre.canevas.itemconfigure(self.ids[5], text = self.theme.upper())
         theme.charge_theme(self.theme)
-        fenetre.set_scipt(Menu())
+        fenetre.set_etat(Menu())
 
     def regles(self, bille):
         """Ouvre une message box contenant les règles du jeu."""

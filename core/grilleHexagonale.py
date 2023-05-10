@@ -138,7 +138,7 @@ class GrilleHexagonale:
 
         groupe, tags = self.get_groupe(bille)
         if(len(groupe)<3 and len(tags) == 0): # si la chaine de billes de même couleur ainsi formée est < 2
-            return 
+            return
         
         if(len(groupe)>=3):
             for b in groupe:
@@ -178,10 +178,13 @@ class GrilleHexagonale:
                     if(self[n_pos] != -1): attente.append(n_pos)
 
         # suppresion des billes non connectés
+        eclates = 0
         for y in range(self.dimensions.y):
             cl = (y-self.grande_ligne)%2
             for x in range(self.dimensions.x-cl):
-                if(self._grille[y][x] != -1 and not connectees[y][x]): self.eclate(Vector2Int(x,y))
+                if(self._grille[y][x] != -1 and not connectees[y][x]):
+                    self.eclate(Vector2Int(x,y))
+                    eclates += 1
 
 
 

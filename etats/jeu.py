@@ -21,6 +21,11 @@ class Jeu(Etat):
         self.chrono = 0
         self.score = 0
 
+    def clear(self) -> None:
+        self.lb_balle_lances.destroy()
+        self.lb_chrono.destroy()
+        self.lb_score.destroy()
+
     def _creer_widgets(self):
         """Ajoute l'interface du jeu et ses données/statistiques : score, temps écoulé, nombre de billes éclatées..."""
 
@@ -50,26 +55,17 @@ class Jeu(Etat):
         self.lb_score.configure(text=f"Score: {self.score} pts")
 
         self.test_fin_de_partie()
-        # # à appeler à chaque lancer
-        # score = 0
-        # if eclate == True : # rajouter un booleen dans la fonction test_eclate_groupe : on incrémente le score à partir du moment où le lancer éclate des billes
-        #     groupe = self.get_groupe(bille) + self.eclate_billes_detaches() # le nombre de billes éclatées = celles du groupe éclaté + celles qui étaient en dessous et qui tombent aussi car non connectées
-        #     if groupe == 3 : # nombre minimal pour éclater
-        #         score += 3
-        #     elif groupe > 3 and < 10 :
-        #         score += groupe * 1.2 # bonus : plus on éclate un grand groupe, plus on obtient de points : 1 point par bille éclatée + un coefficient bonus car grande chaîne formée
-        #     elif groupe >= 10 and < 15 :
-        #         score += groupe * 1.4
-        #     elif groupe >= 15 and < 20 :
-        #         score += groupe * 1.6
-        #     else :
-        #         score = score + groupe*2
-        
-        # score = score * 10 # pour éviter d'avoir des tout petits scores
-        # return score
-
-       # est-ce qu'on affiche le score à chaque lancer en bas ?
     
+    def on_eclatement_bille(self, nb_eclates: int) -> None:
+        combo = 10
+        nb_eclates -= 3
+        self.score += 3*combo
+
+        for _ in range(nb_eclates):
+            combo += 5
+            self.score += combo
+
+
     def test_fin_de_partie(self): 
         """Arrête le jeu (sortir de la fonction update) s'il n'y a plus de billes et affiche le score dans une messagebox."""
         if fenetre.grille.compte_billes == 0:
@@ -81,9 +77,9 @@ class Jeu(Etat):
             else : mult = 1 # si le joueur met plus de 3 minutes pour terminer le niveau (chrono affiché en fin de partie), pas de bonus de rapidité
             self.score *= mult
             gagner=True
-            fenetre.set_scipt(FinDePartie(), gagner, self.score, self.chrono)
+            fenetre.set_etat(FinDePartie(), gagner, self.score, self.chrono)
 
         
 #        elif Balle.position: #si balle touche bas grille
             gagner=False
-            fenetre.set_scipt(FinDePartie(gagner, self.score, self.chrono))
+            fenetre.set_etat(FinDePartie(), gagner, self.score, self.chrono)

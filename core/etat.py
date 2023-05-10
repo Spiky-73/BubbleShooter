@@ -13,3 +13,6 @@ class Etat:
     
     def update(self, delta: float) -> None:
         pass
+
+    def on_eclatement_bille(self, nb_eclates: int) -> None:
+        pass

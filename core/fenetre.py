@@ -9,7 +9,7 @@ from .etat import Etat
 
 
 from .gestionnaireDeTheme import theme
-from utilitaire import Vector2, Vector2Int
+from utilitaire import Vector2Int
 
 
 class Fenetre:
@@ -35,24 +35,24 @@ class Fenetre:
         self.balles: list[Balle] = []
         self.canon = Canon(self.canevas, self.grille.coordonees_to_position(Vector2Int(13,39)), self.grille, self.RAYON, [0], self.balles)
 
-        self.scipt: Etat = None
+        self.etat: Etat = None
 
         self.temp_update: float = 0
 
     def start(self, etat: Etat, *args):
-        self.set_scipt(etat, *args)
+        self.set_etat(etat, *args)
         self.update()
         self.racine.mainloop()
 
 
-    def set_scipt(self, etat: Etat, *args):
-        if(self.scipt != None):
-            self.scipt.clear()
-        self.scipt = etat
+    def set_etat(self, etat: Etat, *args):
+        if(self.etat != None):
+            self.etat.clear()
+        self.etat = etat
         self.grille.reset()
         self.canon.reset()
         self.canevas.configure(bg=theme.fond)
-        self.scipt.init(*args)
+        self.etat.init(*args)
         self.canon.charge_balle()
 
 
@@ -65,10 +65,15 @@ class Fenetre:
         temp_update = time.time()
         delta = temp_update - self.temp_update
         self.temp_update = temp_update # pour le timer et le chrono
-        if(len(self.balles) == 1): self.balles[0].update(delta)
+        if(len(self.balles) == 1):
+            etat,  billes = self.etat.__class__.__name__, self.grille.compte_billes
+            self.balles[0].update(delta)
+            eclates = billes - self.grille.compte_billes
+            if(etat == self.etat.__class__.__name__ and eclates > 0):
+                self.etat.on_eclatement_bille(eclates+1)
         else: self.canon.charge_balle()
         self.canon.update(delta)
-        self.scipt.update(delta)
+        self.etat.update(delta)
 
         # fps en fonction du temps de la fonction
         temps = time.time()
