@@ -1,8 +1,8 @@
 """
 Exécutez ce fichier pour jouer au jeu.
 """
-from etats import menu, jeu, finDePartie # est present ici pour que tout les etat s'enregistre a la fenetre. cela evite au etats de s'importer les uns les autres et de causer un import circulaire
 
+from etats import menu, jeu, finDePartie # est présent ici pour que tous les états s'enregistrent à la fenêtre. Cela évite aux états de s'importer les uns les autres et de causer un import circulaire.
 
 from core.fenetre import fenetre
 

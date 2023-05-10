@@ -53,5 +53,5 @@ class Vector2Int:
     def distance(self, other) -> float:
         return (self-other).norme
     
-    def __iter__(self) -> Iterator[float]:
+    def __iter__(self) -> Iterator[float]: # itérateur
         return iter(dataclasses.astuple(self))
