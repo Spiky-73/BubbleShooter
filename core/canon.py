@@ -125,21 +125,40 @@ class Canon:
         """Simule la trajectoire de la balle et l'affiche pour guider le joueur."""
 
         if(self.balle is None): return # on ne fait rien si la balle est lancée et en cours de mouvement
+        
+        # Calcul le vecteur vitesse orienté vers la souris
         direction: Vector2 = self.souris - self.position # on récupère la direction de la souris
         angle = math.atan2(direction.y, direction.x)
         vitesse = Vector2(math.cos(angle), math.sin(angle)) * self.VITESSE
 
+
+        # Modifie la vitesse de la balle a lancer
         self.balle.vitesse = copy.copy(vitesse) # copié car on veut la garder en sauvegarde pour plus tard dans la fonction
         
+        # Intilialise les variable des pointilles
+        # self.offset_pointilles permet de décaller les pointillés avec le temps
         distance = self.offset_pointilles
         self.pointilles_visibles = 0
+
         dt = 1/250 # pour s'actualiser toutes les 1/250 ème secondes
+
+        # simule la boucle suivie par la balle lorsque elle est lancée
         while not self.balle.collision() and self.pointilles_visibles < len(self.pointilles)-1: # tant qu'on a pas rencontré de bille et donc que la balle est en mouvement
+            
+            # deplace la balle
             self.balle.deplacer(dt)
+            
+            # actuallise la distance parcourue
             distance += self.balle.vitesse.norme * dt
-            if(distance >= self.ESPACEMENT_POINTILLES): # affiche et bouge un pointillé à la place de la balle
+
+            # affiche un pointillée a interval régulier a l'emplacement de la balle
+            if(distance >= self.ESPACEMENT_POINTILLES):
+
+                # affiche le pointillée et le configure
                 self.canevas.moveto(self.pointilles[self.pointilles_visibles], *(self.balle.position-Vector2(self.RAYON_POINTILLES, self.RAYON_POINTILLES)))
                 self.canevas.itemconfigure(self.pointilles[self.pointilles_visibles], fill=self.balle.couleur)
+
+                # actualisation des variables
                 distance -= self.ESPACEMENT_POINTILLES
                 self.pointilles_visibles+=1 # rajoute des pointillés sur la ligne
 
@@ -147,8 +166,8 @@ class Canon:
         self.offset_pointilles = (self.offset_pointilles-self.balle.vitesse.norme * delta/2)%self.ESPACEMENT_POINTILLES
         self.balle.stabilise_position()
         
-        for i in range(self.pointilles_visibles, len(self.pointilles)-1): # cache les pointillés inutilisés
-            self.canevas.itemconfigure(self.pointilles[i], fill="")
+        # cache tous les pointillés innutilisée pour ne pas avoir a les recréer en permanance
+        for i in range(self.pointilles_visibles, len(self.pointilles)-1): self.canevas.itemconfigure(self.pointilles[i], fill="")
         
         # affiche la balle simulée dans sa position finale
         self.canevas.moveto(self.pointilles[-1], * (self.grille.coordonees_to_position(self.grille.position_to_coordonees(self.balle.position))-self.centre_balle))
