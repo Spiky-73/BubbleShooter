@@ -36,9 +36,11 @@ class FinDePartie(Etat):
             fenetre.canevas.delete(id)
         
     def replay(self, bille):
+        """Ouvre une nouvelle fenêtre avec le même niveau."""
         fenetre.set_etat("Jeu", self.niveau)
 
     def menu(self, bille):
+        """Ouvre une fenêtre du menu principal."""
         fenetre.set_etat("Menu")
 
 fenetre.ajout_etat(FinDePartie())
