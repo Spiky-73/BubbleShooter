@@ -21,6 +21,7 @@ class Jeu(Etat):
 
         self.chrono = 0
         self.score = 0
+        self.niveau = niveau
 
 
     def clear(self) -> None:
@@ -88,13 +89,13 @@ class Jeu(Etat):
             else : mult = 1 # si le joueur met plus de 3 minutes pour terminer le niveau (chrono affiché en fin de partie), pas de bonus de rapidité
             self.score *= mult
             gagner = True
-            fenetre.set_etat("FinDePartie", gagner, self.score, self.chrono)
+            fenetre.set_etat("FinDePartie", gagner, self.score, self.chrono, self.niveau)
 
         else:
             for i in fenetre.grille._grille[fenetre.POSITION_CANNON.y]:
                 if i != -1:
                     gagner = False
-                    fenetre.set_scipt(FinDePartie(), gagner, self.score, self.chrono)
+                    fenetre.set_scipt(FinDePartie(), gagner, self.score, self.chrono,self.niveau)
 
                     
 fenetre.ajout_etat(Jeu())
