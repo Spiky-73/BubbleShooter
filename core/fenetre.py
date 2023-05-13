@@ -32,7 +32,7 @@ class Fenetre:
 
         # Positionnement de la fenètre et determination de la taille des billes
         screenx_x, screen_y = (self.racine.winfo_screenwidth(), self.racine.winfo_screenheight())
-        self.RAYON = int(screen_y/1.2/math.cos(math.pi/6)/(2*self.DIMENSIONS.y))-1
+        self.RAYON = int(screen_y/math.cos(math.pi/6)/(2*self.DIMENSIONS.y))-1
         self.HAUTEUR = 2*self.RAYON*math.cos(math.pi/6)
         self.racine.geometry(f'+{(screenx_x-self.DIMENSIONS.x*2*self.RAYON)//2}+0')
 
