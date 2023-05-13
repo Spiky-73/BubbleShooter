@@ -12,14 +12,15 @@ class FinDePartie(Etat):
         """Initialise la fenêtre de fin de partie"""
         self.niveau= niveau
 
-        # Enregistrement des tags
-        fenetre.grille.bind_tag("replay", self.replay)
-        fenetre.grille.bind_tag("menu", self.menu)
 
         # Chargement du niveau et ajout des tags
         lvl.charge_niveau("#finDePartie", fenetre.grille, fenetre.canon)
         fenetre.grille.tag_bille(Vector2Int(3,22), "replay")
         fenetre.grille.tag_bille(Vector2Int(19,22), "menu")
+        
+        # Enregistrement des tags
+        fenetre.grille.bind_tag("replay", self.replay)
+        fenetre.grille.bind_tag("menu", self.menu)
 
         # Ajout du texte
         message = "Bravo !! Tu as gagné ;)" if gagner else "Tu as perdu..."

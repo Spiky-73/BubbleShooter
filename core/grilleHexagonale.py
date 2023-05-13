@@ -180,8 +180,9 @@ class GrilleHexagonale:
         if(len(groupe) < 3 and len(tags) == 0): return
         
         # Eclates toutes les billes
-        for b in groupe:
-            self.eclate(b) # on éclate car le chaîne ainsi formée comporte au minimum 3 billes de la même couleur
+        if(len(groupe) > 1):
+            for b in groupe:
+                self.eclate(b) # on éclate car le chaîne ainsi formée comporte au minimum 3 billes de la même couleur
         
         # Eclate les billes détachées
         if(not self.gelee):self.eclate_billes_detaches()

@@ -52,18 +52,21 @@ class Fenetre:
         # Variables de la boucle update
         self._etats: dict[str, Etat] = {}
         self.etat: Etat = None
+
+        self.running = False
         self.temps_update: float = 0
 
 
     def start(self, etat: str, *args):
         """Lance programme sur etat Etat."""
         self.set_etat(etat, *args)
+        self.running = True
         self.update()
         self.racine.mainloop()
 
     def stop(self):
         """Arrete le jeu."""
-        self.set_etat("")
+        self.running = False
 
     def ajout_etat(self, etat: Etat):
         """Enregistre un état."""
@@ -89,6 +92,11 @@ class Fenetre:
 
     def update(self):
         """Appelée `FPS` fois par seconde pendant le fonctionement de la fenêtre."""
+        
+        if(not self.running):
+            self.racine.destroy()
+            return
+
 
         # Calcul du delta avec le dernier appel de la fonction
         temps_update = time.time()
@@ -102,6 +110,8 @@ class Fenetre:
             eclates = billes - self.grille.nb_billes
             if(etat == self.etat.__class__.__name__ and eclates > 0):
                 self.etat.on_eclatement_bille(eclates+1)
+
+            if(len(self.balles) == 0):
                 self.canon.charge_balle()
 
         # Actualise le canon

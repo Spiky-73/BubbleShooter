@@ -13,12 +13,6 @@ class Menu(Etat):
         self.niveau = "facile"
         self.theme = theme.nom
 
-        # Enregistrement des tags
-        fenetre.grille.bind_tag("play", self.play)
-        fenetre.grille.bind_tag("regles", self.regles)
-        fenetre.grille.bind_tag("niveau", self.niveau_suiv)
-        fenetre.grille.bind_tag("theme", self.theme_suiv)
-        fenetre.grille.bind_tag("quitter", self.quitter)
 
         # Chargement du niveau et ajout des tags
         lvl.charge_niveau("#menu", fenetre.grille, fenetre.canon)
@@ -27,6 +21,13 @@ class Menu(Etat):
         fenetre.grille.tag_bille(Vector2Int(20,15), "niveau")
         fenetre.grille.tag_bille(Vector2Int(22,39), "theme")
         fenetre.grille.tag_bille(Vector2Int(1,39), "quitter")
+        
+        # Enregistrement des tags
+        fenetre.grille.bind_tag("play", self.play)
+        fenetre.grille.bind_tag("regles", self.regles)
+        fenetre.grille.bind_tag("niveau", self.niveau_suiv)
+        fenetre.grille.bind_tag("theme", self.theme_suiv)
+        fenetre.grille.bind_tag("quitter", self.quitter)
 
         # Ajout des textes
         # On utilise des position des billes pour que l'interface reste a l'échelle quel que soit la taille de la fenètre
