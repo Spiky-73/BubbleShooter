@@ -78,7 +78,7 @@ class Jeu(Etat):
     def test_fin_de_partie(self): 
         """Arrête le jeu (sortir de la fonction update) s'il n'y a plus de billes et affiche le score dans une messagebox."""
 
-        if fenetre.grille.compte_billes == 0:
+        if fenetre.grille.nb_billes == 0:
            
             mult = 1
             if self.chrono < 40:     mult = 1.5 # bonus 

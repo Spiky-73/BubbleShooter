@@ -68,11 +68,11 @@ class Canon:
         """Crée la balle au niveau du canon à balles (en bas de la fenêtre) et choisi sa couleur aléatoirement."""
         if(self.balle is not None): return
         
+        # Ajoute des balles à la réserve, d'un rayon plus petit 
         while len(self.reserve)-1 < self.TAILLE_RESERVE:
-            # ajoute des balles à la réserve, d'un rayon plus petit 
             self.remplir_reserve()
 
-        # charge la balle dans le canon
+        # Charge la balle dans le canon
         id, col = self.reserve.pop(0)
         self.canevas.delete(id)
         self.balle = Balle(self.canevas, self.grille, self.balles_mobiles, copy.copy(self.position), self.rayon, Vector2(0, 0), col) # de la couleur d'une des billes du niveau chargé
@@ -99,7 +99,7 @@ class Canon:
 
         if(self.balle is None): return
 
-        # cache tous les pointillés et la simulation quand on lance
+        # Cache tous les pointillés et la simulation quand on lance
         for i in range(0, self.pointilles_visibles):
             self.canevas.itemconfigure(self.pointilles[i], fill="")
         self.canevas.itemconfigure(self.pointilles[-1], outline="")
@@ -131,7 +131,6 @@ class Canon:
         angle = math.atan2(direction.y, direction.x)
         vitesse = Vector2(math.cos(angle), math.sin(angle)) * self.VITESSE * self.rayon*2
 
-
         # Modifie la vitesse de la balle a lancer
         self.balle.vitesse = copy.copy(vitesse) # copié car on veut la garder en sauvegarde pour plus tard dans la fonction
         
@@ -142,38 +141,38 @@ class Canon:
 
         dt = 1/250 # pour s'actualiser toutes les 1/250 ème secondes
 
-        # simule la boucle suivie par la balle lorsque elle est lancée
+        # Simule la boucle suivie par la balle lorsque elle est lancée
         while not self.balle.collision() and self.pointilles_visibles < len(self.pointilles)-1: # tant qu'on a pas rencontré de bille et donc que la balle est en mouvement
             
-            # deplace la balle
+            # Deplace la balle
             self.balle.deplacer(dt)
             
-            # actuallise la distance parcourue
+            # Actuallise la distance parcourue
             distance += self.balle.vitesse.norme * dt / (self.rayon*2)
 
-            # affiche un pointillée a interval régulier a l'emplacement de la balle
+            # Affiche un pointillée a interval régulier a l'emplacement de la balle
             if(distance >= self.ESPACEMENT_POINTILLES):
 
-                # affiche le pointillée et le configure
+                # Affiche le pointillée et le configure
                 self.canevas.moveto(self.pointilles[self.pointilles_visibles], *(self.balle.position-Vector2(self.RAYON_POINTILLES, self.RAYON_POINTILLES)))
                 self.canevas.itemconfigure(self.pointilles[self.pointilles_visibles], fill=self.balle.couleur)
 
-                # actualisation des variables
+                # Actualisation des variables
                 distance -= self.ESPACEMENT_POINTILLES
                 self.pointilles_visibles+=1 # rajoute des pointillés sur la ligne
 
-        # décale les pointillés avec le temps pour donner un effet animé
+        # Décale les pointillés avec le temps pour donner un effet animé
         self.offset_pointilles = (self.offset_pointilles-self.balle.vitesse.norme/(self.rayon*2) * delta/2)%self.ESPACEMENT_POINTILLES
         self.balle.stabilise_position()
         
-        # cache tous les pointillés innutilisée pour ne pas avoir a les recréer en permanance
+        # Cache tous les pointillés innutilisée pour ne pas avoir a les recréer en permanance
         for i in range(self.pointilles_visibles, len(self.pointilles)-1): self.canevas.itemconfigure(self.pointilles[i], fill="")
         
-        # affiche la balle simulée dans sa position finale
+        # Affiche la balle simulée dans sa position finale
         self.canevas.moveto(self.pointilles[-1], * (self.grille.coordonees_to_position(self.grille.position_to_coordonees(self.balle.position))-self.centre_balle))
         self.canevas.itemconfigure(self.pointilles[-1], outline=self.balle.couleur) # pointillés de la couleur de la balle qu'on lance
         
-        # réinitialise la balle simulée
+        # Réinitialise la balle simulée
         self.balle.position = copy.copy(self.position)
         self.balle.vitesse = vitesse
         self.canevas.moveto(self.balle.id, *self.balle.coin_NW)
@@ -181,5 +180,4 @@ class Canon:
 
     def _mouvement_souris(self, event: tkinter.Event):
         """Actualise la position de la souris."""
-
         self.souris = Vector2(event.x, event.y)

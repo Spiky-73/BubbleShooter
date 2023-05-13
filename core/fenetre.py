@@ -13,6 +13,10 @@ from utilitaire import Vector2Int
 
 
 class Fenetre:
+    """
+    Crée une fenètre comportant une grille hexagonale et un canon à balle.
+    Utilisez les fonction `start`, `stop`, `set_etat` pour controller la fenètre.
+    """
 
     RAYON = 10 # rayon des billes, recalculé pour ajusté l'echelle du jeu
     DIMENSIONS = Vector2Int(25, 42)
@@ -23,41 +27,43 @@ class Fenetre:
     DELTA = 1/FPS
     
     def __init__(self):
-        """ Initialise la fenêtre de jeu avec le niveau choisi. """
+        """Initialise la fenêtre de jeu"""
 
-        # Creation de la racine
+        # Création de la racine
         self.racine = tk.Tk()        
         self.racine.title(f"Bubbleshooter") # pour la fenêtre de menu
         self.racine.resizable(height = False, width = False)
 
-        # Positionnement de la fenètre et determination de la taille des billes
+        # Positionnement de la fenêtre et détermination de la taille des billes
         screenx_x, screen_y = (self.racine.winfo_screenwidth(), self.racine.winfo_screenheight())
         self.RAYON = int(screen_y/math.cos(math.pi/6)/(2*self.DIMENSIONS.y))-1
         self.HAUTEUR = 2*self.RAYON*math.cos(math.pi/6)
-        self.racine.geometry(f'+{(screenx_x-self.DIMENSIONS.x*2*self.RAYON)//2}+0')
+        self.racine.geometry(f'+{(screenx_x-self.DIMENSIONS.x*2*self.RAYON)//2}+0') # centre la fenêtre sur l'écran
 
         # Ajout du canevas
         self.canevas = tk.Canvas(self.racine, width=self.DIMENSIONS.x*2*self.RAYON, height=self.DIMENSIONS.y*self.HAUTEUR, bd=0, highlightthickness=0, bg=theme.fond)
         self.canevas.pack()
         
-        # Creation des elements de jeu
+        # Création des elements de jeu
         self.grille = GrilleHexagonale(self.canevas, self.DIMENSIONS, self.RAYON)
-        self.balles: list[Balle] = []
+        self.balles: list[Balle] = [] # stoqué dans une liste pour que le canon puisse ajouter et suprimer des balle directement
         self.canon = Canon(self.canevas, self.grille.coordonees_to_position(self.POSITION_CANNON), self.grille, self.RAYON, [0], self.balles)
 
         # Variables de la boucle update
         self._etats: dict[str, Etat] = {}
         self.etat: Etat = None
-        self.temp_update: float = 0
+        self.temps_update: float = 0
 
 
     def start(self, etat: str, *args):
         """Lance programme sur etat Etat."""
-
         self.set_etat(etat, *args)
         self.update()
         self.racine.mainloop()
 
+    def stop(self):
+        """Arrete le jeu."""
+        self.set_etat("")
 
     def ajout_etat(self, etat: Etat):
         """Enregistre un état."""
@@ -65,43 +71,48 @@ class Fenetre:
 
 
     def set_etat(self, etat: str, *args):
-        """Change l'état du jeu actuel."""
+        """
+        Change l'état du jeu actuel.
+        Appelez `stop` pour quitter le jeu.
+        """
 
         if(self.etat != None): # pour éviter une erreur s'il n'y a pas déjà un état
             self.etat.clear()
-        if(etat == ""):
-            self.racine.destroy()
-        else:
-            self.etat = self._etats[etat]
-            self.grille.reset()
-            self.canon.reset()
-            self.canevas.configure(bg=theme.fond)
-            self.etat.init(*args)
-            self.canon.charge_balle()
+
+        self.etat = self._etats[etat]
+        self.grille.reset()
+        self.canon.reset()
+        self.canevas.configure(bg=theme.fond)
+        self.etat.init(*args)
+        self.canon.charge_balle()
 
 
     def update(self):
-        """
-        Appelée plusieurs fois par seconde.
-        Appelle toutes les fonctions liées au mouvement de la balle (timer) et du jeu.
-        """
+        """Appelée `FPS` fois par seconde pendant le fonctionement de la fenêtre."""
 
-        temp_update = time.time()
-        delta = temp_update - self.temp_update
-        self.temp_update = temp_update # pour le timer et le chrono
+        # Calcul du delta avec le dernier appel de la fonction
+        temps_update = time.time()
+        delta = temps_update - self.temps_update
+        self.temps_update = temps_update
+
+        # Actualise la balle si elle est lancée
         if(len(self.balles) == 1):
-            etat,  billes = self.etat.__class__.__name__, self.grille.compte_billes
+            etat, billes = self.etat.__class__.__name__, self.grille.nb_billes
             self.balles[0].update(delta)
-            eclates = billes - self.grille.compte_billes
+            eclates = billes - self.grille.nb_billes
             if(etat == self.etat.__class__.__name__ and eclates > 0):
                 self.etat.on_eclatement_bille(eclates+1)
-        else: self.canon.charge_balle()
+                self.canon.charge_balle()
+
+        # Actualise le canon
         self.canon.update(delta)
+
+        # Actualise l'etat actuel
         self.etat.update(delta)
 
-        # fps en fonction du temps de la fonction
+        # FPS en fonction du temps de la fonction
         temps = time.time()
-        tps_update = temps-temp_update
+        tps_update = temps-temps_update
         delai = int((self.DELTA-tps_update)*1000)
         if(delai <= 0):
             if(tps_update > 2*self.DELTA): # on fixe une valeur au delà de laquelle on considère qu'on a une trop faible valeur d'images par seconde

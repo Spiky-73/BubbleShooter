@@ -9,34 +9,44 @@ from utilitaire import Vector2Int
 from .gestionnaireDeTheme import theme
 
 
-_dossier = "niveaux" # pas utile de faire une classe
+DOSSIER = "niveaux"
+DOSSIER_ETATS = "etats"
 
 
 def charge_niveau(nom: str, grille: GrilleHexagonale, canon: Canon) -> None:
-    """Charge un niveau."""
+    """
+    Charge un niveau sur une grille et paramètre les balles du canon.
+    Cherche le dossier dans "etat" si le niveau commence par '#'.
+    """
 
-    path = f"etats/{nom[1:]}.csv" if(nom.startswith("#")) else f"{_dossier}/{nom}.csv" # charge le niveau à partir de son nom
+    # Récupère le chemin du fichier
+    path = f"{DOSSIER_ETATS if nom.startswith('#') else DOSSIER}/{nom[1:]}.csv"
+    
     grille.reset()
     canon.reset()
     
-    couleurs = []
-    with open(path, encoding='utf-8') as csvfile: # lecture du fichier csv contenant le niveau choisi
+    # Lecture du fichier
+    couleurs = set()
+    with open(path, encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile,  delimiter=",")
         for j, ligne in enumerate(reader):
-            if j == 0 and len(ligne) != grille.dimensions.x:
-                grille.glissement()
-            for i, c in enumerate(ligne): 
+
+            # Inverse la parite des lignes si necessaire
+            if j == 0 and len(ligne) != grille.dimensions.x: grille.glissement()
+
+            # Remplissage de la grille
+            for i, c in enumerate(ligne):
                 if c != " ":
                     c = int(c)
-                    if(not c in couleurs):
-                        couleurs.append(c)
+                    couleurs.add(c) # enregistre la couleur de la bille
                     grille.place(Vector2Int(i,j), theme.billes[c])
-    canon.couleurs = couleurs
+
+    # Paramètre le canon
+    canon.couleurs = list(couleurs)
 
 
 def iter_niveaux() -> Iterator[str]:
     """Renvoie le nom de tous les thèmes disponibles."""
-
-    path = pathlib.Path(_dossier)
+    path = pathlib.Path(DOSSIER)
     for theme in path.glob('*.csv'):
         yield theme.name.removesuffix(".csv")

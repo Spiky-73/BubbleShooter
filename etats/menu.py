@@ -58,7 +58,7 @@ class Menu(Etat):
     def quitter(self, bille):
         """Pour quitter le jeu."""
 
-        fenetre.set_etat("", self.niveau)
+        fenetre.stop()
 
     
     def niveau_suiv(self, bille):
