@@ -14,7 +14,7 @@ from utilitaire import Vector2Int
 
 class Fenetre:
 
-    RAYON = 10 # rayon des billes
+    RAYON = 10 # rayon des billes, recalculé pour ajusté l'echelle du jeu
     DIMENSIONS = Vector2Int(25, 42)
     POSITION_CANNON = Vector2Int(DIMENSIONS.x//2, DIMENSIONS.y-3)
     HAUTEUR = 2*RAYON*math.cos(math.pi/6)
@@ -25,26 +25,35 @@ class Fenetre:
     def __init__(self):
         """ Initialise la fenêtre de jeu avec le niveau choisi. """
 
-        self._etats: dict[str, Etat] = {}
-
+        # Creation de la racine
         self.racine = tk.Tk()        
         self.racine.title(f"Bubbleshooter") # pour la fenêtre de menu
         self.racine.resizable(height = False, width = False)
 
+        # Positionnement de la fenètre et determination de la taille des billes
+        screenx_x, screen_y = (self.racine.winfo_screenwidth(), self.racine.winfo_screenheight())
+        self.RAYON = int(screen_y/1.2/math.cos(math.pi/6)/(2*self.DIMENSIONS.y))-1
+        self.HAUTEUR = 2*self.RAYON*math.cos(math.pi/6)
+        self.racine.geometry(f'+{(screenx_x-self.DIMENSIONS.x*2*self.RAYON)//2}+0')
+
+        # Ajout du canevas
         self.canevas = tk.Canvas(self.racine, width=self.DIMENSIONS.x*2*self.RAYON, height=self.DIMENSIONS.y*self.HAUTEUR, bd=0, highlightthickness=0, bg=theme.fond)
         self.canevas.pack()
         
+        # Creation des elements de jeu
         self.grille = GrilleHexagonale(self.canevas, self.DIMENSIONS, self.RAYON)
         self.balles: list[Balle] = []
         self.canon = Canon(self.canevas, self.grille.coordonees_to_position(self.POSITION_CANNON), self.grille, self.RAYON, [0], self.balles)
 
+        # Variables de la boucle update
+        self._etats: dict[str, Etat] = {}
         self.etat: Etat = None
-
         self.temp_update: float = 0
 
 
     def start(self, etat: str, *args):
         """Lance programme sur etat Etat."""
+
         self.set_etat(etat, *args)
         self.update()
         self.racine.mainloop()

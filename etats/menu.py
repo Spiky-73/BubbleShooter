@@ -23,12 +23,12 @@ class Menu(Etat):
         fenetre.grille.tag_bille(Vector2Int(20,15), "niveau")
         fenetre.grille.tag_bille(Vector2Int(22,39), "theme")
         self.ids = [
-            fenetre.canevas.create_text(*fenetre.grille.coordonees_to_position(Vector2Int(12,7)) - Vector2(fenetre.RAYON, 1), text="JOUER", fill=theme.text[0], font="Helvetica 25 bold"),
-            fenetre.canevas.create_text(*fenetre.grille.coordonees_to_position(Vector2Int(3,15)), text="REGLES", fill=theme.text[1], font="Helvetica 15 bold"),
-            fenetre.canevas.create_text(*(fenetre.grille.coordonees_to_position(Vector2Int(20,15))-Vector2(0, fenetre.RAYON)), text="NIVEAU", fill=theme.text[0], font="Helvetica 12 bold"),
-            fenetre.canevas.create_text(*(fenetre.grille.coordonees_to_position(Vector2Int(20,15))+Vector2(0, fenetre.RAYON)), text=self.niveau.upper(), fill=theme.text[0], font="Helvetica 12 bold"),
-            fenetre.canevas.create_text(*fenetre.grille.coordonees_to_position(Vector2Int(22,39)), text="THEME", fill=theme.text[1], font="Helvetica 10 bold"),
-            fenetre.canevas.create_text(*(fenetre.grille.coordonees_to_position(Vector2Int(22,40))+Vector2(fenetre.RAYON, 0)), text=theme.nom.upper(), fill=theme.text[1], font="Helvetica 10 bold"),
+            fenetre.canevas.create_text(*fenetre.grille.coordonees_to_position(Vector2Int(12,7)) - Vector2(fenetre.RAYON, 1), text="JOUER", fill=theme.text[0], font=theme.police(fenetre.RAYON*2.2)),
+            fenetre.canevas.create_text(*fenetre.grille.coordonees_to_position(Vector2Int(3,15)), text="REGLES", fill=theme.text[1], font=theme.police(fenetre.RAYON*1.5)),
+            fenetre.canevas.create_text(*(fenetre.grille.coordonees_to_position(Vector2Int(20,15))-Vector2(0, fenetre.RAYON)), text="NIVEAU", fill=theme.text[0], font=theme.police(fenetre.RAYON*1.2)),
+            fenetre.canevas.create_text(*(fenetre.grille.coordonees_to_position(Vector2Int(20,15))+Vector2(0, fenetre.RAYON)), text=self.niveau.upper(), fill=theme.text[0], font=theme.police(fenetre.RAYON*1.2)),
+            fenetre.canevas.create_text(*fenetre.grille.coordonees_to_position(Vector2Int(22,39)), text="THEME", fill=theme.text[1], font=theme.police(fenetre.RAYON)),
+            fenetre.canevas.create_text(*(fenetre.grille.coordonees_to_position(Vector2Int(22,40))+Vector2(fenetre.RAYON, 0)), text=theme.nom.upper(), fill=theme.text[1], font=theme.police(fenetre.RAYON)),
         ]
         fenetre.grille.gelee = True
 

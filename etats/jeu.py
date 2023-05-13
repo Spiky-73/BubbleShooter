@@ -5,8 +5,6 @@ from core.fenetre import fenetre
 import core.gestionnaireDeNiveaux as lvl
 from core.gestionnaireDeTheme import theme
 from utilitaire import Vector2Int
-from .finDePartie import FinDePartie
-from core.grilleHexagonale import GrilleHexagonale
 
 class Jeu(Etat):
 
@@ -14,7 +12,7 @@ class Jeu(Etat):
         """Charge un niveau."""
 
         if niveau == 'aleatoire':
-            self.niveau_aleatoire(1)
+            self.niveau_aleatoire(4)
         else:
             lvl.charge_niveau(niveau, fenetre.grille, fenetre.canon)
         self._creer_widgets()
@@ -35,13 +33,13 @@ class Jeu(Etat):
     def _creer_widgets(self):
         """Ajoute l'interface du jeu et ses données/statistiques : score, temps écoulé, nombre de billes éclatées..."""
 
-        self.lb_chrono = tk.Label(fenetre.racine, text = "Temps écoulé ", font = 'Helvetica 11 bold') # affichage des statistiques
+        self.lb_chrono = tk.Label(fenetre.racine, text = "", font=theme.police(fenetre.RAYON*1.2)) # affichage des statistiques
         self.lb_chrono.pack(side=tk.RIGHT)
 
-        self.lb_balle_lances = tk.Label(fenetre.racine, text = "Nb de balles: ", font = 'Helvetica 11 bold')
+        self.lb_balle_lances = tk.Label(fenetre.racine, text = "", font=theme.police(fenetre.RAYON*1.2))
         self.lb_balle_lances.pack(side=tk.LEFT)
 
-        self.lb_score = tk.Label(fenetre.racine, text = "\nScore ", font = 'Helvetica 11 bold')
+        self.lb_score = tk.Label(fenetre.racine, text = "", font=theme.police(fenetre.RAYON*1.2))
         self.lb_score.pack(side=tk.TOP)
 
 
@@ -58,7 +56,7 @@ class Jeu(Etat):
         """Actualise le temps total de jeu et le score. Calcule le score du joueur."""
 
         self.chrono += delta
-        self.lb_chrono.configure(text=f"Temps écoulé {self.chrono:.2f}s")
+        self.lb_chrono.configure(text=f"Temps: {self.chrono:.2f}s")
         self.lb_balle_lances.configure(text=f"Nb de balles:{fenetre.canon.balle_lances}")
         self.lb_score.configure(text=f"Score: {self.score} pts")
 
@@ -87,15 +85,14 @@ class Jeu(Etat):
             elif self.chrono <= 120 : mult = 1.2
             elif self.chrono <= 180 : mult = 1.1 # léger bonus de rapidité si on met entre 2 et 3 minutes pour finir le jeu
             else : mult = 1 # si le joueur met plus de 3 minutes pour terminer le niveau (chrono affiché en fin de partie), pas de bonus de rapidité
-            self.score *= mult
-            gagner = True
-            fenetre.set_etat("FinDePartie", gagner, self.score, self.chrono, self.niveau)
+            self.score = int(self.score*mult)
+            fenetre.set_etat("FinDePartie", True, self.score, self.chrono, self.niveau)
 
         else:
             for i in fenetre.grille._grille[fenetre.POSITION_CANNON.y]:
                 if i != -1:
-                    gagner = False
-                    fenetre.set_scipt(FinDePartie(), gagner, self.score, self.chrono,self.niveau)
+                    fenetre.set_etat("FinDePartie", False, self.score, self.chrono,self.niveau)
+                    break
 
                     
 fenetre.ajout_etat(Jeu())

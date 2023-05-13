@@ -11,10 +11,10 @@ from .gestionnaireDeTheme import theme
 class Canon:
 
     # paramètres
-    VITESSE = 750 
+    VITESSE = 40 # billes/s
     TAILLE_RESERVE = 2
     RAYON_POINTILLES = 2
-    ESPACEMENT_POINTILLES = 75
+    ESPACEMENT_POINTILLES = 3 # billes
     ECHELLE_RESERVE = 0.5
     REJET_PAR_LANCE = 2
 
@@ -68,14 +68,14 @@ class Canon:
         """Crée la balle au niveau du canon à balles (en bas de la fenêtre) et choisi sa couleur aléatoirement."""
         if(self.balle is not None): return
         
-        if len(self.reserve)-1 < self.TAILLE_RESERVE:
+        while len(self.reserve)-1 < self.TAILLE_RESERVE:
             # ajoute des balles à la réserve, d'un rayon plus petit 
             self.remplir_reserve()
 
         # charge la balle dans le canon
         id, col = self.reserve.pop(0)
         self.canevas.delete(id)
-        self.balle = Balle(self.canevas, self.grille, self.balles_mobiles, copy.copy(self.position), self.rayon, Vector2(0, -self.VITESSE), col) # de la couleur d'une des billes du niveau chargé
+        self.balle = Balle(self.canevas, self.grille, self.balles_mobiles, copy.copy(self.position), self.rayon, Vector2(0, 0), col) # de la couleur d'une des billes du niveau chargé
 
         # bouge les balles de la réserve
         for i, (r, c) in enumerate(self.reserve):
@@ -129,7 +129,7 @@ class Canon:
         # Calcul le vecteur vitesse orienté vers la souris
         direction: Vector2 = self.souris - self.position # on récupère la direction de la souris
         angle = math.atan2(direction.y, direction.x)
-        vitesse = Vector2(math.cos(angle), math.sin(angle)) * self.VITESSE
+        vitesse = Vector2(math.cos(angle), math.sin(angle)) * self.VITESSE * self.rayon*2
 
 
         # Modifie la vitesse de la balle a lancer
@@ -149,7 +149,7 @@ class Canon:
             self.balle.deplacer(dt)
             
             # actuallise la distance parcourue
-            distance += self.balle.vitesse.norme * dt
+            distance += self.balle.vitesse.norme * dt / (self.rayon*2)
 
             # affiche un pointillée a interval régulier a l'emplacement de la balle
             if(distance >= self.ESPACEMENT_POINTILLES):
@@ -163,7 +163,7 @@ class Canon:
                 self.pointilles_visibles+=1 # rajoute des pointillés sur la ligne
 
         # décale les pointillés avec le temps pour donner un effet animé
-        self.offset_pointilles = (self.offset_pointilles-self.balle.vitesse.norme * delta/2)%self.ESPACEMENT_POINTILLES
+        self.offset_pointilles = (self.offset_pointilles-self.balle.vitesse.norme/(self.rayon*2) * delta/2)%self.ESPACEMENT_POINTILLES
         self.balle.stabilise_position()
         
         # cache tous les pointillés innutilisée pour ne pas avoir a les recréer en permanance

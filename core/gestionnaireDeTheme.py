@@ -15,6 +15,7 @@ class GestionnaireDeTheme:
         """Constrcuteur"""
 
         self.nom: str
+        self._police: str
         self.text: tuple[str, str]
         self.fond: str
         self.billes: list[str]
@@ -23,6 +24,9 @@ class GestionnaireDeTheme:
         self._default: str = "defaut"
 
         self.charge_theme(nom)
+
+    def police(self, echelle: float):
+        return self._police.format(int(echelle))
 
 
     def is_color(self, s: str) -> bool:
@@ -50,6 +54,7 @@ class GestionnaireDeTheme:
 
             # changement du thème
             self.nom = nom
+            self._police = content["police"]
             self.text = (content["text0"], content["text1"])
             self.fond = content["fond"]
             self.billes = content["billes"]
@@ -78,6 +83,7 @@ class GestionnaireDeTheme:
         with open(f"{self._dossier}/{self._default}.json", "w") as file:
             json.dump("""
 {
+    "police": "Helvetica {0} bold",
     "text0": "#000000", # noir
     "text1": "#ffffff",
     "fond": "#a2d1f7",
