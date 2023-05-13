@@ -15,6 +15,7 @@ class Menu(Etat):
         fenetre.grille.bind_tag("regles", self.regles)
         fenetre.grille.bind_tag("niveau", self.niveau_suiv)
         fenetre.grille.bind_tag("theme", self.theme_suiv)
+        fenetre.grille.bind_tag("quitter", self.quitter)
         self.niveau = "facile"
         self.theme = theme.nom
 
@@ -22,6 +23,7 @@ class Menu(Etat):
         fenetre.grille.tag_bille(Vector2Int(3,15), "regles")
         fenetre.grille.tag_bille(Vector2Int(20,15), "niveau")
         fenetre.grille.tag_bille(Vector2Int(22,39), "theme")
+        fenetre.grille.tag_bille(Vector2Int(1,39), "quitter")
         self.ids = [
             fenetre.canevas.create_text(*fenetre.grille.coordonees_to_position(Vector2Int(12,7)) - Vector2(fenetre.RAYON, 1), text="JOUER", fill=theme.text[0], font=theme.police(fenetre.RAYON*2.2)),
             fenetre.canevas.create_text(*fenetre.grille.coordonees_to_position(Vector2Int(3,15)), text="REGLES", fill=theme.text[1], font=theme.police(fenetre.RAYON*1.5)),
@@ -29,6 +31,7 @@ class Menu(Etat):
             fenetre.canevas.create_text(*(fenetre.grille.coordonees_to_position(Vector2Int(20,15))+Vector2(0, fenetre.RAYON)), text=self.niveau.upper(), fill=theme.text[0], font=theme.police(fenetre.RAYON*1.2)),
             fenetre.canevas.create_text(*fenetre.grille.coordonees_to_position(Vector2Int(22,39)), text="THEME", fill=theme.text[1], font=theme.police(fenetre.RAYON)),
             fenetre.canevas.create_text(*(fenetre.grille.coordonees_to_position(Vector2Int(22,40))+Vector2(fenetre.RAYON, 0)), text=theme.nom.upper(), fill=theme.text[1], font=theme.police(fenetre.RAYON)),
+            fenetre.canevas.create_text(*(fenetre.grille.coordonees_to_position(Vector2Int(1,39))+Vector2(0, fenetre.RAYON)), text="QUITTER", fill=theme.text[1], font=theme.police(fenetre.RAYON)),
         ]
         fenetre.grille.gelee = True
 
@@ -50,6 +53,12 @@ class Menu(Etat):
         """Pour sélectionner la fenêtre de jeu."""
 
         fenetre.set_etat("Jeu", self.niveau)
+
+    
+    def quitter(self, bille):
+        """Pour quitter le jeu."""
+
+        fenetre.set_etat("", self.niveau)
 
     
     def niveau_suiv(self, bille):

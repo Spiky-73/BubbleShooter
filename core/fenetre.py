@@ -69,12 +69,15 @@ class Fenetre:
 
         if(self.etat != None): # pour éviter une erreur s'il n'y a pas déjà un état
             self.etat.clear()
-        self.etat = self._etats[etat]
-        self.grille.reset()
-        self.canon.reset()
-        self.canevas.configure(bg=theme.fond)
-        self.etat.init(*args)
-        self.canon.charge_balle()
+        if(etat == ""):
+            self.racine.destroy()
+        else:
+            self.etat = self._etats[etat]
+            self.grille.reset()
+            self.canon.reset()
+            self.canevas.configure(bg=theme.fond)
+            self.etat.init(*args)
+            self.canon.charge_balle()
 
 
     def update(self):
