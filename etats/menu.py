@@ -10,20 +10,26 @@ class Menu(Etat):
     def init(self) -> None:
         """Constructeur"""
 
-        lvl.charge_niveau("#menu", fenetre.grille, fenetre.canon)
+        self.niveau = "facile"
+        self.theme = theme.nom
+
+        # Enregistrement des tags
         fenetre.grille.bind_tag("play", self.play)
         fenetre.grille.bind_tag("regles", self.regles)
         fenetre.grille.bind_tag("niveau", self.niveau_suiv)
         fenetre.grille.bind_tag("theme", self.theme_suiv)
         fenetre.grille.bind_tag("quitter", self.quitter)
-        self.niveau = "facile"
-        self.theme = theme.nom
 
+        # Chargement du niveau et ajout des tags
+        lvl.charge_niveau("#menu", fenetre.grille, fenetre.canon)
         fenetre.grille.tag_bille(Vector2Int(13,7), "play")
         fenetre.grille.tag_bille(Vector2Int(3,15), "regles")
         fenetre.grille.tag_bille(Vector2Int(20,15), "niveau")
         fenetre.grille.tag_bille(Vector2Int(22,39), "theme")
         fenetre.grille.tag_bille(Vector2Int(1,39), "quitter")
+
+        # Ajout des textes
+        # On utilise des position des billes pour que l'interface reste a l'échelle quel que soit la taille de la fenètre
         self.ids = [
             fenetre.canevas.create_text(*fenetre.grille.coordonees_to_position(Vector2Int(12,7)) - Vector2(fenetre.RAYON, 1), text="JOUER", fill=theme.text[0], font=theme.police(fenetre.RAYON*2.2)),
             fenetre.canevas.create_text(*fenetre.grille.coordonees_to_position(Vector2Int(3,15)), text="REGLES", fill=theme.text[1], font=theme.police(fenetre.RAYON*1.5)),
@@ -33,48 +39,49 @@ class Menu(Etat):
             fenetre.canevas.create_text(*(fenetre.grille.coordonees_to_position(Vector2Int(22,40))+Vector2(fenetre.RAYON, 0)), text=theme.nom.upper(), fill=theme.text[1], font=theme.police(fenetre.RAYON)),
             fenetre.canevas.create_text(*(fenetre.grille.coordonees_to_position(Vector2Int(1,39))+Vector2(0, fenetre.RAYON)), text="QUITTER", fill=theme.text[1], font=theme.police(fenetre.RAYON)),
         ]
+
+        # Gèle la grille pour que les boutons se régénère
         fenetre.grille.gelee = True
 
 
     def clear(self) -> None:
-        """Supprime la fenêtre."""
-
+        """Supprime les textes."""
         for id in self.ids:
             fenetre.canevas.delete(id)
-
-
-    def update(self, delta: float) -> None:
-        """A faire"""
-
-        return super().update(delta)
     
 
     def play(self, bille):
-        """Pour sélectionner la fenêtre de jeu."""
-
+        """Lance le jeu avec le niveau sélectioné."""
         fenetre.set_etat("Jeu", self.niveau)
 
     
     def quitter(self, bille):
-        """Pour quitter le jeu."""
-
+        """Quitte le jeu."""
         fenetre.stop()
 
     
     def niveau_suiv(self, bille):
-        """Pour que quand la bille touche ce "bouton", on passe au niveau suivant (facile --> moyen --> aléatoire). Pour que le joueur choisisse le niveau avec lequel il veut jouer."""
+        """Selectionne le niveau suivant dans la liste des niveaux."""
 
+        # Récupère la liste des niveaux
         niveaux = list(lvl.iter_niveaux())
+
+        # Passe au niveau suivant (facile --> moyen --> aléatoire) et actualise l'interface
         self.niveau = niveaux[(niveaux.index(self.niveau)+1)%len(niveaux)]
         fenetre.canevas.itemconfigure(self.ids[3], text = self.niveau.upper())
 
     
     def theme_suiv(self, bille):
-        """Idem, même principe que niveau_suiv mais cette fois ci avec les différents thèmes de couleur."""
+        """Selectionne le thème suivant dans la liste des thèmes."""
 
+        # Récupère la liste des thèmes
         themes = list(theme.iter_themes())
+
+        # Passe au thème suivant et actualise l'interface
         self.theme = themes[(themes.index(self.theme)+1)%len(themes)]
         fenetre.canevas.itemconfigure(self.ids[5], text = self.theme.upper())
+
+        # Charge le thème suivant et recharge le menu pour le le thème prenne effet
         theme.charge_theme(self.theme)
         fenetre.set_etat("Menu")
 
