@@ -9,20 +9,20 @@ import core.gestionnaireDeNiveaux as lvl
 class FinDePartie(Etat):
 
     def init(self, gagner, score: int, chrono: float, niveau: str) -> None:
-        """Initialise la fenêtre de fin de partie"""
+        """Initialise la fenêtre de fin de partie."""
+
         self.niveau = niveau
 
-
-        # Chargement du niveau et ajout des tags
+        # chargement du niveau et ajout des tags
         lvl.charge_niveau("#finDePartie", fenetre.grille, fenetre.canon)
         fenetre.grille.tag_bille(Vector2Int(3,22), "replay")
         fenetre.grille.tag_bille(Vector2Int(19,22), "menu")
         
-        # Enregistrement des tags
+        # enregistrement des tags
         fenetre.grille.bind_tag("replay", self.replay)
         fenetre.grille.bind_tag("menu", self.menu)
 
-        # Ajout du texte
+        # ajout du texte
         message = "Bravo !! Tu as gagné ;)" if gagner else "Tu as perdu..."
         message += f"\nTu as fini le jeu en {chrono:.2f} s\nTon score est de : {score}" # nombre de chiffres significatifs pour le score affiché
         self.ids = [
@@ -36,15 +36,21 @@ class FinDePartie(Etat):
 
     def clear(self) -> None:
         """Supprime les textes."""
+
         for id in self.ids:
             fenetre.canevas.delete(id)
+
         
     def replay(self, bille):
         """Relance une partie avec le même niveau."""
+
         fenetre.set_etat("Jeu", self.niveau)
 
+
     def menu(self, bille):
-        """Passe au menu principal"""
+        """Passe au menu principal."""
+
         fenetre.set_etat("Menu")
+
 
 fenetre.ajout_etat(FinDePartie())

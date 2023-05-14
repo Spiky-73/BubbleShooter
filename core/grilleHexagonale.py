@@ -263,8 +263,13 @@ class GrilleHexagonale:
     
 
     def _eclate_bille_fin(self, anim_id: int):
+        """Efface la bille."""
+
         self.canevas.delete(anim_id)
+        
     
     def _eclate_bille_gelee_fin(self, anim_id: int, id_bille: int, color: str):
+        """Fin de l'animation."""
+
         self.canevas.delete(anim_id)
         self.canevas.itemconfigure(id_bille, fill=color, outline="black")
