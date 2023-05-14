@@ -19,34 +19,35 @@ def charge_niveau(nom: str, grille: GrilleHexagonale, canon: Canon) -> None:
     Cherche le dossier dans "etat" si le niveau commence par '#'.
     """
 
-    # Récupère le chemin du fichier
+    # récupère le chemin du fichier
     path = f"{DOSSIER_ETATS}/{nom[1:]}.csv" if nom.startswith('#') else f"{DOSSIER}/{nom}.csv"
     
     grille.reset()
     canon.reset()
     
-    # Lecture du fichier
+    # lecture du fichier
     couleurs = set()
     with open(path, encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile,  delimiter=",")
         for j, ligne in enumerate(reader):
 
-            # Inverse la parite des lignes si necessaire
+            # inverse la parite des lignes si nécessaire
             if j == 0 and len(ligne) != grille.dimensions.x: grille.glissement()
 
-            # Remplissage de la grille
+            # remplissage de la grille
             for i, c in enumerate(ligne):
                 if c != " ":
                     c = int(c)
                     couleurs.add(c) # enregistre la couleur de la bille
                     grille.place(Vector2Int(i,j), theme.billes[c])
 
-    # Paramètre le canon
+    # paramètre le canon
     canon.couleurs = list(couleurs)
 
 
 def iter_niveaux() -> Iterator[str]:
     """Renvoie le nom de tous les thèmes disponibles."""
+    
     path = pathlib.Path(DOSSIER)
     for theme in path.glob('*.csv'):
         yield theme.name.removesuffix(".csv")

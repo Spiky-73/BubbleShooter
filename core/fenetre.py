@@ -14,42 +14,42 @@ from utilitaire import Vector2Int
 
 class Fenetre:
     """
-    Crée une fenètre comportant une grille hexagonale et un canon à balle.
-    Utilisez les fonction `start`, `stop`, `set_etat` pour controller la fenètre.
+    Crée une fenêtre comportant une grille hexagonale et un canon à balles.
+    Utilisez les fonctions `start`, `stop`, `set_etat` pour contrôler la fenêtre.
     """
 
-    RAYON = 10 # rayon des billes, recalculé pour ajusté l'echelle du jeu
+    RAYON = 10 # rayon des billes, recalculé pour ajuster l'échelle du jeu
     DIMENSIONS = Vector2Int(25, 42)
     POSITION_CANNON = Vector2Int(DIMENSIONS.x//2, DIMENSIONS.y-3)
-    HAUTEUR = 2*RAYON*math.cos(math.pi/6)
+    HAUTEUR = 2 * RAYON * math.cos(math.pi/6)
 
     FPS = 60
     DELTA = 1/FPS
     
     def __init__(self):
-        """Initialise la fenêtre de jeu"""
+        """Initialise la fenêtre de jeu."""
 
-        # Création de la racine
+        # création de la racine
         self.racine = tk.Tk()        
         self.racine.title(f"Bubbleshooter") # pour la fenêtre de menu
         self.racine.resizable(height = False, width = False)
 
-        # Positionnement de la fenêtre et détermination de la taille des billes
+        # positionnement de la fenêtre et détermination de la taille des billes
         screenx_x, screen_y = (self.racine.winfo_screenwidth(), self.racine.winfo_screenheight())
         self.RAYON = int(screen_y/math.cos(math.pi/6)/(2*self.DIMENSIONS.y))-1
         self.HAUTEUR = 2*self.RAYON*math.cos(math.pi/6)
         self.racine.geometry(f'+{(screenx_x-self.DIMENSIONS.x*2*self.RAYON)//2}+0') # centre la fenêtre sur l'écran
 
-        # Ajout du canevas
+        # ajout du canevas
         self.canevas = tk.Canvas(self.racine, width=self.DIMENSIONS.x*2*self.RAYON, height=self.DIMENSIONS.y*self.HAUTEUR, bd=0, highlightthickness=0, bg=theme.fond)
         self.canevas.pack()
         
-        # Création des elements de jeu
+        # création des éléments de jeu
         self.grille = GrilleHexagonale(self.canevas, self.DIMENSIONS, self.RAYON)
-        self.balles: list[Balle] = [] # stoqué dans une liste pour que le canon puisse ajouter et suprimer des balle directement
+        self.balles: list[Balle] = [] # stocké dans une liste pour que le canon puisse ajouter et supprimer des balles directement
         self.canon = Canon(self.canevas, self.grille.coordonees_to_position(self.POSITION_CANNON), self.grille, self.RAYON, [0], self.balles)
 
-        # Variables de la boucle update
+        # variables de la boucle update
         self._etats: dict[str, Etat] = {}
         self.etat: Etat = None
 
@@ -59,17 +59,22 @@ class Fenetre:
 
     def start(self, etat: str, *args):
         """Lance programme sur etat Etat."""
+
         self.set_etat(etat, *args)
         self.running = True
         self.update()
         self.racine.mainloop()
 
+
     def stop(self):
-        """Arrete le jeu."""
+        """Arrête le jeu."""
+
         self.running = False
+
 
     def ajout_etat(self, etat: Etat):
         """Enregistre un état."""
+
         self._etats[etat.__class__.__name__] = etat
 
 
@@ -97,13 +102,12 @@ class Fenetre:
             self.racine.destroy()
             return
 
-
-        # Calcul du delta avec le dernier appel de la fonction
+        # calcul du delta avec le dernier appel de la fonction
         temps_update = time.time()
         delta = temps_update - self.temps_update
         self.temps_update = temps_update
 
-        # Actualise la balle si elle est lancée
+        # actualise la balle si elle est lancée
         if(len(self.balles) == 1):
             etat, billes = self.etat.__class__.__name__, self.grille.nb_billes
             self.balles[0].update(delta)
@@ -114,10 +118,10 @@ class Fenetre:
             if(len(self.balles) == 0):
                 self.canon.charge_balle()
 
-        # Actualise le canon
+        # actualise le canon
         self.canon.update(delta)
 
-        # Actualise l'etat actuel
+        # actualise l'état actuel
         self.etat.update(delta)
 
         # FPS en fonction du temps de la fonction

@@ -10,7 +10,7 @@ class FinDePartie(Etat):
 
     def init(self, gagner, score: int, chrono: float, niveau: str) -> None:
         """Initialise la fenêtre de fin de partie"""
-        self.niveau= niveau
+        self.niveau = niveau
 
 
         # Chargement du niveau et ajout des tags
@@ -24,11 +24,11 @@ class FinDePartie(Etat):
 
         # Ajout du texte
         message = "Bravo !! Tu as gagné ;)" if gagner else "Tu as perdu..."
-        message += f"\nTu as fini le jeu en {chrono:.2f} s\nTon score est de : {score}"
+        message += f"\nTu as fini le jeu en {chrono:.2f} s\nTon score est de : {score}" # nombre de chiffres significatifs pour le score affiché
         self.ids = [
-            fenetre.canevas.create_text(*fenetre.grille.coordonees_to_position(Vector2Int(5,21)) - Vector2(fenetre.RAYON, 0), text="REJOUER", fill=theme.text[1], font=theme.police(fenetre.RAYON*2)),
-            fenetre.canevas.create_text(*fenetre.grille.coordonees_to_position(Vector2Int(19,21)) - Vector2(fenetre.RAYON, 0), text="MENU", fill=theme.text[0], font=theme.police(fenetre.RAYON*2)),
-            fenetre.canevas.create_text(250,250, text=message, fill=theme.text[0], font=theme.police(fenetre.RAYON*1.5))
+            fenetre.canevas.create_text(*fenetre.grille.coordonees_to_position(Vector2Int(5,25)) - Vector2(fenetre.RAYON, 0), text="REJOUER", fill=theme.text[1], font=theme.police(fenetre.RAYON*2)),
+            fenetre.canevas.create_text(*fenetre.grille.coordonees_to_position(Vector2Int(19,25)) - Vector2(fenetre.RAYON, 0), text="MENU", fill=theme.text[0], font=theme.police(fenetre.RAYON*2)),
+            fenetre.canevas.create_text(200,230, text=message, fill=theme.text[0], font=theme.police(fenetre.RAYON*1.5))
             ]
         
         fenetre.grille.gelee = True

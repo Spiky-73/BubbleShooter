@@ -21,12 +21,14 @@ class Balle:
     @property
     def coin_NW(self) -> Vector2:
         """Renvoie la position du coin supérieur gauche."""
+
         return self.position - Vector2(self.rayon, self.rayon)
     
     
     @property
     def coin_SE(self) -> Vector2:
         """Renvoie la position du coin inférieur droit."""
+        
         return self.position + Vector2(self.rayon, self.rayon)
     
 
