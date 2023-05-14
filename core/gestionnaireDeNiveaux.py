@@ -20,7 +20,7 @@ def charge_niveau(nom: str, grille: GrilleHexagonale, canon: Canon) -> None:
     """
 
     # Récupère le chemin du fichier
-    path = f"{DOSSIER_ETATS if nom.startswith('#') else DOSSIER}/{nom[1:]}.csv"
+    path = f"{DOSSIER_ETATS}/{nom[1:]}.csv" if nom.startswith('#') else f"{DOSSIER}/{nom}.csv"
     
     grille.reset()
     canon.reset()

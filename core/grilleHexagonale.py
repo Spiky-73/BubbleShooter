@@ -33,7 +33,7 @@ class GrilleHexagonale:
         self.centre = Vector2(self.rayon, self.rayon)
         self.grande_ligne = grande_ligne
         self.nb_billes = 0
-        self.img_eclats = tkinter.PhotoImage(file="images/eclats.png").subsample(6) # pour l'animation
+        self.img_eclats = tkinter.PhotoImage(file="images/eclats.png").subsample(255//(4*self.rayon)) # pour l'animation
 
         # Billes boutons
         self._binds: dict[str, Callable[[Vector2Int], None]] = {}
