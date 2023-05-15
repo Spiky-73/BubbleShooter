@@ -15,8 +15,8 @@ class FinDePartie(Etat):
 
         # chargement du niveau et ajout des tags
         lvl.charge_niveau("#finDePartie", fenetre.grille, fenetre.canon)
-        fenetre.grille.tag_bille(Vector2Int(3,22), "replay")
-        fenetre.grille.tag_bille(Vector2Int(19,22), "menu")
+        fenetre.grille.tag_bille(Vector2Int(3,26), "replay")
+        fenetre.grille.tag_bille(Vector2Int(19,26), "menu")
         
         # enregistrement des tags
         fenetre.grille.bind_tag("replay", self.replay)
