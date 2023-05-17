@@ -139,7 +139,7 @@ class Canon:
         distance = self.offset_pointilles
         self.pointilles_visibles = 0
 
-        dt = 1/250 # pour s'actualiser toutes les 1/250 ème secondes
+        dt = 1/120 # pour s'actualiser toutes les 1/250 ème secondes
 
         # simule la boucle suivie par la balle lorsque elle est lancée
         while not self.balle.collision() and self.pointilles_visibles < len(self.pointilles)-1: # tant qu'on a pas rencontré de bille et donc que la balle est en mouvement
