@@ -139,7 +139,7 @@ class Canon:
         distance = self.offset_pointilles
         self.pointilles_visibles = 0
 
-        dt = 1/120 # pour s'actualiser toutes les 1/250 ème secondes
+        dt = 1/120 # pour s'actualiser toutes les 1/120 ème secondes
 
         # simule la boucle suivie par la balle lorsque elle est lancée
         while not self.balle.collision() and self.pointilles_visibles < len(self.pointilles)-1: # tant qu'on a pas rencontré de bille et donc que la balle est en mouvement
@@ -161,21 +161,23 @@ class Canon:
                 distance -= self.ESPACEMENT_POINTILLES
                 self.pointilles_visibles+=1 # rajoute des pointillés sur la ligne
 
-        # décale les pointillés avec le temps pour donner un effet animé
-        self.offset_pointilles = (self.offset_pointilles-self.balle.vitesse.norme/(self.rayon*2) * delta/2)%self.ESPACEMENT_POINTILLES
         self.balle.stabilise_position()
-        
-        # cache tous les pointillés inutilisés pour ne pas avoir à les recréer en permanence
-        for i in range(self.pointilles_visibles, len(self.pointilles)-1): self.canevas.itemconfigure(self.pointilles[i], fill="")
         
         # affiche la balle simulée dans sa position finale
         self.canevas.moveto(self.pointilles[-1], * (self.grille.coordonees_to_position(self.grille.position_to_coordonees(self.balle.position))-self.centre_balle))
         self.canevas.itemconfigure(self.pointilles[-1], outline=self.balle.couleur) # pointillés de la couleur de la balle qu'on lance
         
+        # cache tous les pointillés inutilisés pour ne pas avoir à les recréer en permanence
+        for i in range(self.pointilles_visibles, len(self.pointilles)-1): self.canevas.itemconfigure(self.pointilles[i], fill="")
+        
+        
         # réinitialise la balle simulée
         self.balle.position = copy.copy(self.position)
         self.balle.vitesse = vitesse
         self.canevas.moveto(self.balle.id, *self.balle.coin_NW)
+        
+        # décale les pointillés avec le temps pour donner un effet animé
+        self.offset_pointilles = (self.offset_pointilles-self.balle.vitesse.norme/(self.rayon*2) * delta/2)%self.ESPACEMENT_POINTILLES
 
 
     def _mouvement_souris(self, event: tkinter.Event):
